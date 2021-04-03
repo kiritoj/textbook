@@ -1,0 +1,3 @@
+include ':base'
+include ':app', ':imagepicker', ':ucrop'
+rootProject.name='RichEditTextCopyToutiao'

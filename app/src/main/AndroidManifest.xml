@@ -17,15 +17,17 @@
             android:name=".activity.TestActivity"
             android:label="@string/title_activity_main"
             android:theme="@style/AppTheme.NoActionBar"></activity>
-        <activity android:name=".activity.HomeActivity" />
-        <activity
-            android:name=".MainActivity"
-            android:windowSoftInputMode="stateAlwaysHidden">
+        <activity android:name=".activity.HomeActivity"
+            android:theme="@style/NO_ACTIONBAR">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".MainActivity"
+            android:windowSoftInputMode="stateAlwaysHidden">
         </activity>
         <activity
             android:name=".activity.EditActivity"

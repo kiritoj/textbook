@@ -1,6 +1,7 @@
 package com.leo.copytoutiao.activity;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -86,6 +87,12 @@ public class EditActivity extends BaseActivity implements View.OnClickListener {
             binding.richEditor.setHtml(content);
         }
         initToolBar(findViewById(R.id.toolbar), "编辑", true, -1);
+    }
+
+    public static void startActivity(Context context, String content){
+        Intent intent = new Intent(context, EditActivity.class);
+        intent.putExtra("content", content);
+        context.startActivity(intent);
     }
 
 
@@ -518,15 +525,19 @@ public class EditActivity extends BaseActivity implements View.OnClickListener {
                 binding.richEditor.redo();
                 break;
             case R.id.edit_finish:
-                SharedPreferences sharedPreferences = getSharedPreferences("art", MODE_PRIVATE);
-                SharedPreferences.Editor edit = sharedPreferences.edit();
-                edit.putString("content", binding.richEditor.getHtml());
-                edit.putString("title", binding.editName.getText().toString().trim());
-                edit.commit();
-                Toast.makeText(this, "发布成功", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(this, PreViewActivity.class);
-                startActivity(intent);
-                finish();
+                if (TextUtils.isEmpty(binding.richEditor.getHtml())){
+                    Toast.makeText(EditActivity.this, "没有可以保存的内容",Toast.LENGTH_SHORT).show();
+                } else {
+                    SharedPreferences sharedPreferences = getSharedPreferences("art", MODE_PRIVATE);
+                    SharedPreferences.Editor edit = sharedPreferences.edit();
+                    edit.putString("content", binding.richEditor.getHtml());
+                    edit.putString("title", binding.editName.getText().toString().trim());
+                    edit.commit();
+                    Toast.makeText(this, "发布成功", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(this, PreViewActivity.class);
+                    startActivity(intent);
+                    finish();
+                }
                 break;
         }
         return true;

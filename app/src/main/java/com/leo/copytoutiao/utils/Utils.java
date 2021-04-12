@@ -10,6 +10,8 @@ import android.graphics.drawable.Drawable;
 import android.util.Base64;
 
 import java.io.ByteArrayOutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Created by ZQiong on 2018/3/22.
@@ -52,6 +54,12 @@ public final class Utils {
 
     public static long getCurrentTime() {
         return System.currentTimeMillis();
+    }
+
+    //时间戳转时间
+    public static String timeStamp2Date(long timeStamp){
+        SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        return sdf.format(new Date(Long.parseLong(String.valueOf(timeStamp))));
     }
 
 

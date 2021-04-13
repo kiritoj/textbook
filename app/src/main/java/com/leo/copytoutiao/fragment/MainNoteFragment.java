@@ -26,6 +26,7 @@ import java.util.List;
  */
 public class MainNoteFragment extends BaseFragment implements View.OnClickListener {
     private FragmentMainNoteBinding mBinding;
+    String[] mTitles = {"全部","工作","随机","待办"};
 
     @Nullable
     @Override
@@ -42,11 +43,10 @@ public class MainNoteFragment extends BaseFragment implements View.OnClickListen
 
     public void initViewPager(){
         List<Fragment> fragments = new ArrayList<>();
-        String[] titles = {"全部","工作","随机","待办"};
-        for (String kind : titles) {
+        for (String kind : mTitles) {
             fragments.add(NotesFragment.getInstance(kind));
         }
-        BaseFragmentAdapter adapter = new BaseFragmentAdapter(getChildFragmentManager(),titles.length,titles,fragments);
+        BaseFragmentAdapter adapter = new BaseFragmentAdapter(getChildFragmentManager(),mTitles.length,mTitles,fragments);
         mBinding.viewpager.setAdapter(adapter);
         mBinding.tabLayout.setupWithViewPager(mBinding.viewpager);
     }
@@ -60,7 +60,9 @@ public class MainNoteFragment extends BaseFragment implements View.OnClickListen
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.float_button:
-                startActivity(new Intent(getActivity(), EditActivity.class));
+                int index = mBinding.viewpager.getCurrentItem();
+                String kind = index == 0 ? mTitles[1] : mTitles[index];
+                EditActivity.startActivity(getActivity(),kind);
                 break;
         }
     }

@@ -52,8 +52,7 @@ public class NotesFragment extends BaseFragment {
         //初始化RecyclerView
         List<NoteBean> noteBeans = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
-            noteBeans.add(new NoteBean("我是标题","我是内容",null, Utils.getCurrentTime()));
-            noteBeans.add(new NoteBean("我是标题","我是内容","http://ww1.sinaimg.cn/large/006nwaiFly1g63riz9882j30lp0mmwjs.jpg", Utils.getCurrentTime()));
+            noteBeans.add(new NoteBean("我是标题","我是内容",null,"随记", Utils.getCurrentTime()));
         }
         mAdapter = new NotesRecyclerAdapter(noteBeans, R.layout.item_note_text, R.layout.item_note_text_pic);
         mBinding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));

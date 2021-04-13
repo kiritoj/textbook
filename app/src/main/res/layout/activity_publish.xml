@@ -8,6 +8,7 @@
             type="android.view.View.OnClickListener" />
     </data>
 
+
     <LinearLayout
         android:id="@+id/container"
         android:layout_width="match_parent"
@@ -17,21 +18,48 @@
 
         <include layout="@layout/toolbar"/>
 
-
-        <EditText
-            android:id="@+id/edit_name"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/dp_10"
-            android:layout_marginRight="@dimen/dp_10"
-            android:background="@null"
             android:gravity="center_vertical"
-            android:hint="写个标题吧 (最多15个字)~"
-            android:maxLength="15"
-            android:paddingTop="@dimen/dp_10"
-            android:textColor="@color/black1b"
-            android:textSize="@dimen/sp_20"
-            android:textStyle="bold" />
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/edit_name"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginLeft="@dimen/dp_10"
+                android:layout_marginRight="@dimen/dp_10"
+                android:background="@null"
+                android:gravity="center_vertical"
+                android:hint="标题(最多15个字)~"
+                android:maxLength="15"
+                android:paddingTop="@dimen/dp_10"
+                android:textColor="@color/black1b"
+                android:textSize="@dimen/sp_20"
+                android:textStyle="bold" />
+
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="@dimen/dp_30"
+                android:src="@mipmap/icon_file"
+                android:layout_marginRight="@dimen/dp_2"/>
+            <TextView
+                android:id="@+id/folder_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="随记"
+                android:textColor="@color/black"
+                android:layout_marginRight="@dimen/dp_2"
+                android:onClick="@{onClickListener}"/>
+            <ImageView
+                android:layout_width="@dimen/dp_30"
+                android:layout_height="@dimen/dp_30"
+                android:src="@mipmap/icon_down"
+                android:layout_marginRight="@dimen/dp_10"/>
+
+        </LinearLayout>
 
         <View
             android:id="@+id/dotted_line"

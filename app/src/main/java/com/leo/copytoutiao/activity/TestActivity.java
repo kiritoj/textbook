@@ -2,6 +2,7 @@ package com.leo.copytoutiao.activity;
 
 import android.os.Bundle;
 
+import com.bumptech.glide.Glide;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -9,8 +10,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.view.View;
+import android.widget.ImageView;
 
 import com.leo.copytoutiao.R;
+import com.lzy.imagepicker.loader.GlideImageLoader;
+
+import java.io.File;
 
 public class TestActivity extends AppCompatActivity {
 
@@ -29,5 +34,9 @@ public class TestActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
+        ImageView imageView = findViewById(R.id.image);
+        String s = "/storage/emulated/0/Tencent/QQ_Images/7f6cac5234d44bd.jpg";
+        File file = new File(s);
+        Glide.with(TestActivity.this).load(file).into(imageView);
     }
 }

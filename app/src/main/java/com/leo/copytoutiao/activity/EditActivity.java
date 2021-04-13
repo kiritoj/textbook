@@ -5,9 +5,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.text.Editable;
-import android.text.Html;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -17,16 +17,23 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.SeekBar;
 import android.widget.Toast;
-import android.widget.Toolbar;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.databinding.DataBindingUtil;
 
 import com.leo.copytoutiao.R;
 import com.leo.copytoutiao.databinding.ActivityPublishBinding;
+import com.leo.copytoutiao.model.bean.NoteBean;
+import com.leo.copytoutiao.model.db.DataBaseHelper;
+import com.leo.copytoutiao.utils.Color;
 import com.leo.copytoutiao.utils.KeyBoardUtils;
 import com.leo.copytoutiao.utils.RichUtils;
+import com.leo.copytoutiao.utils.Utils;
 import com.leo.copytoutiao.utils.popup.CommonPopupWindow;
 import com.leo.copytoutiao.view.RichEditor;
 import com.lzy.imagepicker.ImagePicker;
@@ -35,17 +42,9 @@ import com.lzy.imagepicker.ui.ImageGridActivity;
 import com.taoke.base.BaseActivity;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 import com.yalantis.ucrop.UCropActivity;
-import com.leo.copytoutiao.utils.Color;
-
 
 import java.util.ArrayList;
 import java.util.List;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.databinding.DataBindingUtil;
 
 import static com.yalantis.ucrop.UCrop.EXTRA_OUTPUT_URI;
 
@@ -66,33 +65,39 @@ public class EditActivity extends BaseActivity implements View.OnClickListener {
     private boolean mIsItalicSelect = false;
     private int mThreshold;
     private int mCurProgress = 25; //seekBar当前值
+    private NoteBean mNote;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_publish);
-        isFrom = getIntent().getIntExtra("isFrom", 0);
+        mNote = (NoteBean) getIntent().getSerializableExtra("note");
         binding.setOnClickListener(this);
         rxPermissions = new RxPermissions(this);
         initPop();
         initEditor();
         //initThreshold();
         initViews();
-        if (isFrom == 1) {
-            SharedPreferences sharedPreferences = getSharedPreferences("art", MODE_PRIVATE);
-            String title = sharedPreferences.getString("title", "title");
-            String content = sharedPreferences.getString("content", "");
-            binding.editName.setText(title);
-            binding.richEditor.setHtml(content);
+        if (mNote != null) {
+//            SharedPreferences sharedPreferences = getSharedPreferences("art", MODE_PRIVATE);
+//            String title = sharedPreferences.getString("title", "title");
+//            String content = sharedPreferences.getString("content", "");
+            binding.editName.setText(mNote.title);
+            binding.richEditor.setHtml(mNote.content);
         }
         initToolBar(findViewById(R.id.toolbar), "编辑", true, -1);
     }
 
-    public static void startActivity(Context context, String content){
+    public static void startActivity(Context context, NoteBean note) {
         Intent intent = new Intent(context, EditActivity.class);
-        intent.putExtra("content", content);
+        intent.putExtra("note", note);
         context.startActivity(intent);
+    }
+
+    public static void startActivity(Context context, String kind) {
+        NoteBean noteBean = new NoteBean(null, null, null, kind, 0);
+        startActivity(context, noteBean);
     }
 
 
@@ -112,7 +117,7 @@ public class EditActivity extends BaseActivity implements View.OnClickListener {
         binding.richEditor.setOnTextChangeListener(new RichEditor.OnTextChangeListener() {
             @Override
             public void onTextChange(String text) {
-//                Log.e("富文本文字变动", text);
+                Log.e("富文本文字变动", text);
 //                if (TextUtils.isEmpty(binding.editName.getText().toString().trim())) {
 //                    binding.txtPublish.setSelected(false);
 //                    binding.txtPublish.setEnabled(false);
@@ -321,6 +326,8 @@ public class EditActivity extends BaseActivity implements View.OnClickListener {
     }
 
     private void initViews() {
+        binding.folderName.setText(mNote.kind);
+        //字体大小选择器
         binding.seekbar.setMax(100);
         binding.seekbar.setProgress(25);
         binding.seekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -342,6 +349,7 @@ public class EditActivity extends BaseActivity implements View.OnClickListener {
                 binding.richEditor.setFontSize(size + 3);
             }
         });
+
     }
 
     @Override
@@ -482,6 +490,7 @@ public class EditActivity extends BaseActivity implements View.OnClickListener {
 
                 againEdit();
                 for (int i = 0; i < selectImages.size(); i++) {
+                    //在这里进行文件上传处理
                     binding.richEditor.insertImage(selectImages.get(i).path, "dachshund");
                 }
                 KeyBoardUtils.openKeybord(binding.editName, EditActivity.this);
@@ -525,19 +534,31 @@ public class EditActivity extends BaseActivity implements View.OnClickListener {
                 binding.richEditor.redo();
                 break;
             case R.id.edit_finish:
-                if (TextUtils.isEmpty(binding.richEditor.getHtml())){
-                    Toast.makeText(EditActivity.this, "没有可以保存的内容",Toast.LENGTH_SHORT).show();
+                if (TextUtils.isEmpty(binding.richEditor.getHtml())) {
+                    Toast.makeText(EditActivity.this, "没有可以保存的内容", Toast.LENGTH_SHORT).show();
                 } else {
-                    SharedPreferences sharedPreferences = getSharedPreferences("art", MODE_PRIVATE);
-                    SharedPreferences.Editor edit = sharedPreferences.edit();
-                    edit.putString("content", binding.richEditor.getHtml());
-                    edit.putString("title", binding.editName.getText().toString().trim());
-                    edit.commit();
-                    Toast.makeText(this, "发布成功", Toast.LENGTH_SHORT).show();
-                    Intent intent = new Intent(this, PreViewActivity.class);
-                    startActivity(intent);
-                    finish();
+                    DataBaseHelper helper = new DataBaseHelper(EditActivity.this, "Notes.db", 1);
+                    SQLiteDatabase database = helper.getWritableDatabase();
+                    long time = Utils.getCurrentTime();
+                    //更新相关属性
+                    mNote.title = binding.editName.getText().toString();
+                    mNote.title = TextUtils.isEmpty(mNote.title) ? "无标题" : mNote.title;
+                    mNote.content = binding.richEditor.getHtml();
+                    mNote.kind = binding.folderName.getText().toString();
+                    //处理第一张图片
+                    mNote.url = "";
+                    if (mNote.time > 0) {
+                        //有数据，更改
+                        database.execSQL("update note set title = ?,content = ?, url = ?,kind = ? where time = ?"
+                                , new String[]{mNote.title, mNote.content, mNote.url, mNote.kind, String.valueOf(mNote.time)});
+                    } else {
+                        //无数据，插入
+                        mNote.time = time;
+                        database.execSQL("insert into note (title, content, url, kind, time) values (?,?,?,?,?)"
+                                , new String[]{mNote.title, mNote.content, mNote.url, mNote.kind, String.valueOf(mNote.time)});
+                    }
                 }
+                binding.richEditor.clearFocusEditor();
                 break;
         }
         return true;

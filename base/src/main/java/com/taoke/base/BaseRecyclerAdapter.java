@@ -11,6 +11,7 @@ public abstract class BaseRecyclerAdapter<T> extends RecyclerView.Adapter<Recycl
 
     protected List<T> mData;
     protected int[] mLayoutIds;
+    protected OnItemClickListener mListener;
     public BaseRecyclerAdapter(List<T> data, int...layoutIds){
         this.mData = data;
         this.mLayoutIds = layoutIds;
@@ -20,6 +21,9 @@ public abstract class BaseRecyclerAdapter<T> extends RecyclerView.Adapter<Recycl
         return mLayoutIds[0];
     }
 
+    public static interface OnItemClickListener<T>{
+        void onClick(T t);
+    }
 
     @NonNull
     @Override
@@ -47,6 +51,10 @@ public abstract class BaseRecyclerAdapter<T> extends RecyclerView.Adapter<Recycl
 
     public int[] getLayoutIds(){
         return mLayoutIds;
+    }
+
+    public void setOnClickListener(OnItemClickListener listener){
+        mListener = listener;
     }
 
 }

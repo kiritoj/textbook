@@ -11,12 +11,14 @@ public class NoteBean implements Serializable {
     public String url;
     public String kind; //类别
     public long time;
+    public final UserBean userBean;
 
-    public NoteBean(String title, String content, String url, String kind, long time){
+    public NoteBean(String title, String content, String url, String kind, long time, UserBean userBean){
         this.title = title;
         this.content = content;
         this.url = url;
         this.kind = kind;
         this.time = time;
+        this.userBean = userBean;
     }
 }

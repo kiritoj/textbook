@@ -1,6 +1,7 @@
 package com.leo.copytoutiao.activity;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -59,8 +60,6 @@ public class EditActivity extends BaseActivity implements View.OnClickListener {
     private CommonPopupWindow popupWindow; //编辑图片的pop
     private String currentUrl = "";
 
-    private int isFrom;//0:表示正常编辑  1:表示是重新编辑
-
     //编辑item按下后，图标选择。由于框架无法及时回调造成的
     private boolean mIsItalicSelect = false;
     private int mThreshold;
@@ -96,7 +95,7 @@ public class EditActivity extends BaseActivity implements View.OnClickListener {
     }
 
     public static void startActivity(Context context, String kind) {
-        NoteBean noteBean = new NoteBean(null, null, null, kind, 0);
+        NoteBean noteBean = new NoteBean(null, null, null, kind, 0, null);
         startActivity(context, noteBean);
     }
 
@@ -460,6 +459,9 @@ public class EditActivity extends BaseActivity implements View.OnClickListener {
             case R.id.iv_color_purple:
                 binding.richEditor.setTextColor(Color.PURPLE);
                 break;
+            case R.id.folder_name:
+                FolderActivity.startActivityForResult(EditActivity.this, binding.folderName.getText().toString(), FolderActivity.REQUEST_CODE);
+                break;
         }
     }
 
@@ -513,6 +515,11 @@ public class EditActivity extends BaseActivity implements View.OnClickListener {
                     currentUrl = "";
                 }
             }
+        } else if (requestCode == FolderActivity.REQUEST_CODE) {
+            if (resultCode == FolderActivity.RESULT_CODE) {
+                mNote.kind = data.getStringExtra(FolderActivity.SELECT_KIND);
+                binding.folderName.setText(mNote.kind);
+            }
         }
     }
 
@@ -537,25 +544,8 @@ public class EditActivity extends BaseActivity implements View.OnClickListener {
                 if (TextUtils.isEmpty(binding.richEditor.getHtml())) {
                     Toast.makeText(EditActivity.this, "没有可以保存的内容", Toast.LENGTH_SHORT).show();
                 } else {
-                    DataBaseHelper helper = new DataBaseHelper(EditActivity.this, "Notes.db", 1);
-                    SQLiteDatabase database = helper.getWritableDatabase();
-                    long time = Utils.getCurrentTime();
-                    //更新相关属性
-                    mNote.title = binding.editName.getText().toString();
-                    mNote.title = TextUtils.isEmpty(mNote.title) ? "无标题" : mNote.title;
-                    mNote.content = binding.richEditor.getHtml();
-                    mNote.kind = binding.folderName.getText().toString();
-                    //处理第一张图片
-                    mNote.url = "";
-                    if (mNote.time > 0) {
-                        //有数据，更改
-                        database.execSQL("update note set title = ?,content = ?, url = ?,kind = ? where time = ?"
-                                , new String[]{mNote.title, mNote.content, mNote.url, mNote.kind, String.valueOf(mNote.time)});
-                    } else {
-                        //无数据，插入
-                        mNote.time = time;
-                        database.execSQL("insert into note (title, content, url, kind, time) values (?,?,?,?,?)"
-                                , new String[]{mNote.title, mNote.content, mNote.url, mNote.kind, String.valueOf(mNote.time)});
+                    if (isChange()) {
+                        save();
                     }
                 }
                 binding.richEditor.clearFocusEditor();
@@ -563,4 +553,57 @@ public class EditActivity extends BaseActivity implements View.OnClickListener {
         }
         return true;
     }
+
+    public void save() {
+        DataBaseHelper helper = new DataBaseHelper(EditActivity.this, "Notes.db", 1);
+        SQLiteDatabase database = helper.getWritableDatabase();
+        long time = Utils.getCurrentTime();
+        int userId = mNote.userBean != null ? mNote.userBean.getUserId() : 0;
+        //更新相关属性
+        mNote.title = binding.editName.getText().toString();
+        mNote.title = TextUtils.isEmpty(mNote.title) ? "无标题" : mNote.title;
+        mNote.content = binding.richEditor.getHtml();
+        mNote.kind = binding.folderName.getText().toString();
+        //处理第一张图片
+        mNote.url = "";
+        if (mNote.time > 0) {
+            //有数据，更改
+            database.execSQL("update note set title = ?,content = ?, url = ?,kind = ? where time = ? and userid = ?"
+                    , new String[]{mNote.title, mNote.content, mNote.url, mNote.kind, String.valueOf(mNote.time), String.valueOf(userId)});
+        } else {
+            //无数据，插入
+            mNote.time = time;
+            database.execSQL("insert into note (title, content, url, kind, time,userid) values (?,?,?,?,?,?)"
+                    , new String[]{mNote.title, mNote.content, mNote.url, mNote.kind, String.valueOf(mNote.time), String.valueOf(userId)});
+        }
+    }
+
+    private boolean isChange() {
+        return !(binding.editName.getText().toString().equals(mNote.title) &&
+                binding.richEditor.getHtml().equals(mNote.content) &&
+                binding.folderName.getText().toString().equals(mNote.kind));
+
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (isChange()) {
+            //弹窗有内容未保存
+            final AlertDialog.Builder builder =
+                    new AlertDialog.Builder(EditActivity.this);
+            builder.setTitle("放弃修改?");
+            builder.setMessage("检测到修改尚未保存。是否放弃修改?");
+            builder.setPositiveButton("取消",
+                    (dialog, which) -> dialog.dismiss());
+            builder.setNegativeButton("好",
+                    (dialog, which) -> {
+                        EditActivity.super.onBackPressed();
+                    });
+            builder.show();
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+
 }

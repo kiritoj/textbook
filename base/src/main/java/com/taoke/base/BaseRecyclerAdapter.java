@@ -11,7 +11,7 @@ public abstract class BaseRecyclerAdapter<T> extends RecyclerView.Adapter<Recycl
 
     protected List<T> mData;
     protected int[] mLayoutIds;
-    protected OnItemClickListener mListener;
+    protected OnItemClickListener<T> mListener;
     public BaseRecyclerAdapter(List<T> data, int...layoutIds){
         this.mData = data;
         this.mLayoutIds = layoutIds;

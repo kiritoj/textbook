@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.leo.copytoutiao.R;
+import com.leo.copytoutiao.model.bean.FolderBean;
 import com.taoke.base.BaseRecyclerAdapter;
 import com.taoke.base.BaseViewHolder;
 
@@ -14,10 +15,10 @@ import java.util.List;
 /**
  * Created by tk on 2021/4/13
  */
-public class FolderRecyclerAdapter extends BaseRecyclerAdapter<String> {
+public class FolderRecyclerAdapter extends BaseRecyclerAdapter<FolderBean> {
     private String mCurKind;
 
-    public FolderRecyclerAdapter(String curKind, List<String> data, int... layoutIds) {
+    public FolderRecyclerAdapter(String curKind, List<FolderBean> data, int... layoutIds) {
         super(data, layoutIds);
         mCurKind = curKind;
     }
@@ -31,7 +32,7 @@ public class FolderRecyclerAdapter extends BaseRecyclerAdapter<String> {
         } else {
             textView.setTextColor(Color.BLACK);
         }
-        textView.setText(mData.get(position));
+        textView.setText(mData.get(position).getName());
         textView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

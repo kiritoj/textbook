@@ -24,19 +24,25 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.databinding.DataBindingUtil;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.leo.copytoutiao.R;
 import com.leo.copytoutiao.databinding.ActivityPublishBinding;
 import com.leo.copytoutiao.model.bean.NoteBean;
 import com.leo.copytoutiao.model.db.DataBaseHelper;
+import com.leo.copytoutiao.model.repository.LoginRepository;
 import com.leo.copytoutiao.utils.Color;
+import com.leo.copytoutiao.utils.HtmlUtil;
 import com.leo.copytoutiao.utils.KeyBoardUtils;
 import com.leo.copytoutiao.utils.RichUtils;
 import com.leo.copytoutiao.utils.Utils;
 import com.leo.copytoutiao.utils.popup.CommonPopupWindow;
 import com.leo.copytoutiao.view.RichEditor;
+import com.leo.copytoutiao.viewmodel.NoteViewModel;
 import com.lzy.imagepicker.ImagePicker;
 import com.lzy.imagepicker.bean.ImageItem;
 import com.lzy.imagepicker.ui.ImageGridActivity;
@@ -65,6 +71,10 @@ public class EditActivity extends BaseActivity implements View.OnClickListener {
     private int mThreshold;
     private int mCurProgress = 25; //seekBar当前值
     private NoteBean mNote;
+    private NoteViewModel mViewModel;
+    public static final int CREATE_NOTE = 3239; //新建笔记
+    public static final int Edit_NOTE = 8374; //修改笔记
+
 
 
     @Override
@@ -74,6 +84,7 @@ public class EditActivity extends BaseActivity implements View.OnClickListener {
         mNote = (NoteBean) getIntent().getSerializableExtra("note");
         binding.setOnClickListener(this);
         rxPermissions = new RxPermissions(this);
+        mViewModel = new ViewModelProvider(this, new ViewModelProvider.AndroidViewModelFactory(getApplication())).get(NoteViewModel.class);
         initPop();
         initEditor();
         //initThreshold();
@@ -82,8 +93,8 @@ public class EditActivity extends BaseActivity implements View.OnClickListener {
 //            SharedPreferences sharedPreferences = getSharedPreferences("art", MODE_PRIVATE);
 //            String title = sharedPreferences.getString("title", "title");
 //            String content = sharedPreferences.getString("content", "");
-            binding.editName.setText(mNote.title);
-            binding.richEditor.setHtml(mNote.content);
+            binding.editName.setText(mNote.getTitle());
+            binding.richEditor.setHtml(mNote.getContent());
         }
         initToolBar(findViewById(R.id.toolbar), "编辑", true, -1);
     }
@@ -95,10 +106,29 @@ public class EditActivity extends BaseActivity implements View.OnClickListener {
     }
 
     public static void startActivity(Context context, String kind) {
-        NoteBean noteBean = new NoteBean(null, null, null, kind, 0, null);
+        NoteBean noteBean = new NoteBean(null, null, null, kind, 0, LoginRepository.getInstance().getCurrentUser());
         startActivity(context, noteBean);
     }
 
+    public static void startActivityForResult(Fragment fragment, NoteBean note) {
+        Intent intent = new Intent(fragment.getContext(), EditActivity.class);
+        intent.putExtra("note", note);
+        fragment.startActivityForResult(intent,Edit_NOTE);
+    }
+
+    public static void startActivityForResult(Fragment fragment, String kind){
+        NoteBean note = new NoteBean(null, null, null, kind, 0, LoginRepository.getInstance().getCurrentUser());
+        Intent intent = new Intent(fragment.getContext(), EditActivity.class);
+        intent.putExtra("note", note);
+        fragment.startActivityForResult(intent,CREATE_NOTE);
+    }
+
+    public static void startActivityForResult(AppCompatActivity context, String kind) {
+        NoteBean noteBean = new NoteBean(null, null, null, kind, 0, LoginRepository.getInstance().getCurrentUser());
+        Intent intent = new Intent(context, EditActivity.class);
+        intent.putExtra("note", noteBean);
+        context.startActivityForResult(intent,CREATE_NOTE);
+    }
 
     private void initEditor() {
         //输入框显示字体的大小
@@ -325,7 +355,7 @@ public class EditActivity extends BaseActivity implements View.OnClickListener {
     }
 
     private void initViews() {
-        binding.folderName.setText(mNote.kind);
+        binding.folderName.setText(mNote.getKind());
         //字体大小选择器
         binding.seekbar.setMax(100);
         binding.seekbar.setProgress(25);
@@ -517,8 +547,8 @@ public class EditActivity extends BaseActivity implements View.OnClickListener {
             }
         } else if (requestCode == FolderActivity.REQUEST_CODE) {
             if (resultCode == FolderActivity.RESULT_CODE) {
-                mNote.kind = data.getStringExtra(FolderActivity.SELECT_KIND);
-                binding.folderName.setText(mNote.kind);
+                mNote.setKind(data.getStringExtra(FolderActivity.SELECT_KIND));
+                binding.folderName.setText(mNote.getKind());
             }
         }
     }
@@ -558,30 +588,40 @@ public class EditActivity extends BaseActivity implements View.OnClickListener {
         DataBaseHelper helper = new DataBaseHelper(EditActivity.this, "Notes.db", 1);
         SQLiteDatabase database = helper.getWritableDatabase();
         long time = Utils.getCurrentTime();
-        int userId = mNote.userBean != null ? mNote.userBean.getUserId() : 0;
+        int userId = mNote.getUserBean().getUserId();
         //更新相关属性
-        mNote.title = binding.editName.getText().toString();
-        mNote.title = TextUtils.isEmpty(mNote.title) ? "无标题" : mNote.title;
-        mNote.content = binding.richEditor.getHtml();
-        mNote.kind = binding.folderName.getText().toString();
+        mNote.setTitle(TextUtils.isEmpty(binding.editName.getText().toString()) ?
+                "无标题" : binding.editName.getText().toString());
+        mNote.setContent(binding.richEditor.getHtml());
+        mNote.setKind(binding.folderName.getText().toString());
         //处理第一张图片
-        mNote.url = "";
-        if (mNote.time > 0) {
+        mNote.setUrl(HtmlUtil.getFirstUrlFromHtml(mNote.getContent()));
+        if (mNote.getTime() > 0) {
             //有数据，更改
-            database.execSQL("update note set title = ?,content = ?, url = ?,kind = ? where time = ? and userid = ?"
-                    , new String[]{mNote.title, mNote.content, mNote.url, mNote.kind, String.valueOf(mNote.time), String.valueOf(userId)});
+            mViewModel.updateNode(mNote);
         } else {
             //无数据，插入
-            mNote.time = time;
-            database.execSQL("insert into note (title, content, url, kind, time,userid) values (?,?,?,?,?,?)"
-                    , new String[]{mNote.title, mNote.content, mNote.url, mNote.kind, String.valueOf(mNote.time), String.valueOf(userId)});
+            mNote.setTime(time);
+            mViewModel.addNote(mNote);
         }
+        Intent intent = new Intent();
+        intent.putExtra("note", mNote);
+        setResult(200,intent);
     }
 
     private boolean isChange() {
-        return !(binding.editName.getText().toString().equals(mNote.title) &&
-                binding.richEditor.getHtml().equals(mNote.content) &&
-                binding.folderName.getText().toString().equals(mNote.kind));
+        boolean isChange = false;
+        if (mNote.getTitle() != null){
+            isChange = !binding.editName.getText().toString().equals(mNote.getTitle());
+        } else{
+            isChange = !TextUtils.isEmpty(binding.editName.getText());
+        }
+        if (mNote.getContent() != null){
+            isChange |= !binding.richEditor.getHtml().equals(mNote.getContent());
+        } else{
+            isChange |= !TextUtils.isEmpty(binding.richEditor.getHtml());
+        }
+        return isChange || !binding.folderName.getText().toString().equals(mNote.getKind());
 
     }
 

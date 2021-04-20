@@ -45,7 +45,7 @@ public class FolderActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         mBinding = DataBindingUtil.setContentView(this, R.layout.activity_folder);
         mViewModel = new ViewModelProvider(this, new ViewModelProvider.AndroidViewModelFactory(this.getApplication())).get(FolderViewModel.class);
-        mViewModel.queryFolder(123);
+        mViewModel.queryFolder(LoginRepository.getInstance().getCurrentUser().getUserId());
         initView();
         initObserve();
         initToolBar(findViewById(R.id.toolbar), "笔记归属文件夹", true, -1);
@@ -69,16 +69,12 @@ public class FolderActivity extends BaseActivity {
             data.addAll(mViewModel.getFolders().getValue());
         }
         mAdapter = new FolderRecyclerAdapter("工作",data,R.layout.item_folder);
-        mAdapter.setOnClickListener(new BaseRecyclerAdapter.OnItemClickListener<String>() {
-            @Override
-            public void onClick(String s) {
-                if (!TextUtils.isEmpty(s)){
-                    Intent intent = new Intent();
-                    intent.putExtra(SELECT_KIND,s);
-                    setResult(RESULT_CODE, intent);
-                    finish();
-                }
-            }
+        mAdapter.setOnClickListener(bean -> {
+                Intent intent = new Intent();
+                intent.putExtra(SELECT_KIND,bean.getName());
+                setResult(RESULT_CODE, intent);
+                finish();
+
         });
         mBinding.recyclerView.setLayoutManager(new LinearLayoutManager(FolderActivity.this));
         mBinding.recyclerView.setAdapter(mAdapter);

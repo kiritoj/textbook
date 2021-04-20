@@ -6,7 +6,7 @@ import com.leo.copytoutiao.model.bean.UserBean;
 import com.taoke.base.BaseRepository;
 
 public class LoginRepository extends BaseRepository<UserBean> {
-    private UserBean curUser;
+    private UserBean curUser = new UserBean("taoke","qqwe123");
     private static volatile LoginRepository instance;
 
     public static LoginRepository getInstance(){

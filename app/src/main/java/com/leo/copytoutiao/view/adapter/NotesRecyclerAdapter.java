@@ -5,6 +5,7 @@ import android.text.TextUtils;
 
 import com.leo.copytoutiao.R;
 import com.leo.copytoutiao.model.bean.NoteBean;
+import com.leo.copytoutiao.utils.HtmlUtil;
 import com.leo.copytoutiao.utils.Utils;
 import com.taoke.base.BaseRecyclerAdapter;
 import com.taoke.base.BaseViewHolder;
@@ -28,20 +29,20 @@ public class NotesRecyclerAdapter extends BaseRecyclerAdapter<NoteBean> {
     @Override
     public void convert(BaseViewHolder holder, int position) {
         if (getItemViewType(position) == NOTE_TYPE.TEXT){
-            holder.setText(R.id.title, mData.get(position).title);
-            holder.setText(R.id.content, mData.get(position).content);
-            holder.setText(R.id.time, Utils.timeStamp2Date(mData.get(position).time));
+            holder.setText(R.id.title, mData.get(position).getTitle());
+            holder.setText(R.id.content, HtmlUtil.getTextFromHtml(mData.get(position).getContent()));
+            holder.setText(R.id.time, Utils.timeStamp2Date(mData.get(position).getTime()));
         } else {
-            holder.setText(R.id.title, mData.get(position).title);
-            holder.setText(R.id.content, mData.get(position).content);
-            holder.setText(R.id.time, Utils.timeStamp2Date(mData.get(position).time));
-            holder.setImageWithNet(R.id.image, mData.get(position).url);
+            holder.setText(R.id.title, mData.get(position).getTitle());
+            holder.setText(R.id.content, HtmlUtil.getTextFromHtml(mData.get(position).getContent()));
+            holder.setText(R.id.time, Utils.timeStamp2Date(mData.get(position).getTime()));
+            holder.setImageFromFile(R.id.image, mData.get(position).getUrl());
         }
     }
 
     @Override
     public int getItemViewType(int position) {
-        return TextUtils.isEmpty(mData.get(position).url) ? NOTE_TYPE.TEXT : NOTE_TYPE.TEXT_PIC;
+        return TextUtils.isEmpty(mData.get(position).getUrl()) ? NOTE_TYPE.TEXT : NOTE_TYPE.TEXT_PIC;
     }
 
     @Override

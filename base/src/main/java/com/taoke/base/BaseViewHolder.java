@@ -13,6 +13,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 
+import java.io.File;
+
 
 public class BaseViewHolder extends RecyclerView.ViewHolder {
     private SparseArray<View> mViews;
@@ -52,6 +54,13 @@ public class BaseViewHolder extends RecyclerView.ViewHolder {
     public BaseViewHolder setImageWithNet(int viewId, String url){
         ImageView imageView = getView(viewId);
         Glide.with(imageView.getContext()).load(url).into(imageView);
+        return this;
+    }
+
+    public BaseViewHolder setImageFromFile(int viewId, String path){
+        ImageView imageView = getView(viewId);
+        File file = new File(path);
+        Glide.with(imageView.getContext()).load(file).into(imageView);
         return this;
     }
 

@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
  */
 public class HtmlUtil {
     //获取html文本第一张图片的src
-    public static String getFirstImage(String html){
+    public static String getTextFromHtml(String html){
         String text = html.replaceAll("</?[^>]+>", " "); //剔出<html>的标签
         text = text.replaceAll("<a>\\s*|\t|\r|\n</a>", " ");//去除字符串中的空格,回车,换行符,制表符
         return text;

@@ -35,7 +35,7 @@ public class FolderViewModel extends AndroidViewModel {
         mFolderRep.setListener(new BaseRepository.LoadListener<FolderBean>() {
             @Override
             public void onSuccess(List<FolderBean> result) {
-                if (!mFolders.getValue().equals(result)){
+                if (mFolders.getValue() == null || !mFolders.getValue().equals(result)){
                     mFolders.setValue(result);
                 }
             }
@@ -51,8 +51,11 @@ public class FolderViewModel extends AndroidViewModel {
         FolderBean bean = new FolderBean(mLoginRep.getCurrentUser().getUserId(),kind);
         if (mFolders.getValue() == null || !mFolders.getValue().contains(bean)){
             mFolderRep.insertFolder(bean);
-            mFolders.getValue().add(bean);
         }
+        if (mFolders.getValue() == null){
+            mFolders.setValue(new ArrayList<>());
+        }
+        mFolders.getValue().add(bean);
     }
 
     public void queryFolder(int userId){

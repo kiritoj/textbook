@@ -3,6 +3,7 @@ package com.leo.copytoutiao.activity;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -13,18 +14,22 @@ import com.leo.copytoutiao.databinding.ActivityHomeBinding;
 import com.leo.copytoutiao.fragment.MainNoteFragment;
 import com.leo.copytoutiao.fragment.UserFragment;
 import com.leo.copytoutiao.view.adapter.BaseFragmentAdapter;
+import com.leo.copytoutiao.viewmodel.NoteViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class HomeActivity extends AppCompatActivity {
     ActivityHomeBinding mBinding;
-
+    private NoteViewModel mViewModel;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         mBinding = DataBindingUtil.setContentView(this, R.layout.activity_home);
+        mViewModel = new ViewModelProvider(this, new ViewModelProvider.AndroidViewModelFactory(this.getApplication())).get(NoteViewModel.class);
+        //在activity中预拉取数据，fragment直接使用
+        mViewModel.queryNotes();
         initViews();
         initListener();
     }
@@ -65,5 +70,4 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
     }
-
 }

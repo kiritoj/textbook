@@ -5,6 +5,8 @@ import android.view.ViewGroup;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
+
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -12,7 +14,7 @@ import java.util.List;
  */
 
 public class BaseFragmentAdapter extends FragmentPagerAdapter {
-    private String[] mTitles;
+    private ArrayList<String> mTitles;
     private int mCount;
     private List<Fragment> mFragments;
 
@@ -20,9 +22,8 @@ public class BaseFragmentAdapter extends FragmentPagerAdapter {
         super(fm);
     }
 
-    public BaseFragmentAdapter(FragmentManager fm, int count, String[] titles, List<Fragment> fragments){
+    public BaseFragmentAdapter(FragmentManager fm, ArrayList<String> titles, List<Fragment> fragments){
         this(fm);
-        mCount = count;
         mTitles = titles;
         mFragments = fragments;
     }
@@ -30,7 +31,7 @@ public class BaseFragmentAdapter extends FragmentPagerAdapter {
     @Override
     public CharSequence getPageTitle(int position) {
         if (mTitles != null){
-            return mTitles[position];
+            return mTitles.get(position);
         }
         return null;
     }
@@ -42,9 +43,11 @@ public class BaseFragmentAdapter extends FragmentPagerAdapter {
 
     @Override
     public int getCount() {
-        return mCount;
+        return mTitles.size();
     }
 
     @Override
-    public void destroyItem(ViewGroup container, int position, Object object) {}
+    public void destroyItem(ViewGroup container, int position, Object object) {
+        super.destroyItem(container, position, object);
+    }
 }

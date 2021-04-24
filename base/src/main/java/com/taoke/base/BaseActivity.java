@@ -52,6 +52,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         return true;
     }
 
+
     public int getMenuRes() {
         return FLAG_NOMENU;
     }

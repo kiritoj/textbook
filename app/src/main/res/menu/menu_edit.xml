@@ -18,20 +18,20 @@
         android:icon="@mipmap/icon_finish"
         android:title="保存"
         app:showAsAction="always"/>
-    <item
-        android:id="@+id/delete"
-        android:icon="@mipmap/icon_delete"
-        android:title="删除"
-        app:showAsAction="ifRoom"/>
+<!--    <item-->
+<!--        android:id="@+id/delete"-->
+<!--        android:icon="@mipmap/icon_delete"-->
+<!--        android:title="删除"-->
+<!--        app:showAsAction="ifRoom"/>-->
     <item
         android:id="@+id/tip"
         android:icon="@mipmap/icon_tip"
         android:title="提醒"
         app:showAsAction="ifRoom"/>
-    <item
-        android:id="@+id/filter"
-        android:icon="@mipmap/icon_filter"
-        android:title="分类"
-        app:showAsAction="ifRoom"/>
+<!--    <item-->
+<!--        android:id="@+id/filter"-->
+<!--        android:icon="@mipmap/icon_filter"-->
+<!--        android:title="分类"-->
+<!--        app:showAsAction="ifRoom"/>-->
 
 </menu>

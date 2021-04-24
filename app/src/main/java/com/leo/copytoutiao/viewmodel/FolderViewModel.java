@@ -10,6 +10,7 @@ import com.leo.copytoutiao.model.bean.FolderBean;
 import com.leo.copytoutiao.model.bean.UserBean;
 import com.leo.copytoutiao.model.repository.FolderRepository;
 import com.leo.copytoutiao.model.repository.LoginRepository;
+import com.leo.copytoutiao.model.repository.NoteRepository;
 import com.taoke.base.BaseRepository;
 
 import java.util.ArrayList;
@@ -61,6 +62,11 @@ public class FolderViewModel extends AndroidViewModel {
     public void queryFolder(int userId){
         mFolderRep.queryFolder(userId);
     }
+
+    public void deleteFolder(FolderBean bean){
+        mFolderRep.deleteFolder(bean.getUserId(),bean.getName());
+    }
+
 
     public FolderRepository getFolderRep() {
         return mFolderRep;

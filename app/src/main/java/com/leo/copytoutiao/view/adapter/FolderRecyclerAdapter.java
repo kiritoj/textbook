@@ -3,6 +3,8 @@ package com.leo.copytoutiao.view.adapter;
 import android.content.Context;
 import android.graphics.Color;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
 import com.leo.copytoutiao.R;
@@ -17,10 +19,19 @@ import java.util.List;
  */
 public class FolderRecyclerAdapter extends BaseRecyclerAdapter<FolderBean> {
     private String mCurKind;
+    private OnDeleteListener listener;
 
     public FolderRecyclerAdapter(String curKind, List<FolderBean> data, int... layoutIds) {
         super(data, layoutIds);
         mCurKind = curKind;
+    }
+
+    public void setDeleteListener(OnDeleteListener listener){
+        this.listener = listener;
+    }
+
+    public interface OnDeleteListener{
+        void delete(FolderBean bean, int position);
     }
 
 
@@ -41,6 +52,18 @@ public class FolderRecyclerAdapter extends BaseRecyclerAdapter<FolderBean> {
                 }
             }
         });
+        if (mCurKind != null){
+            ImageView delete = holder.getView(R.id.delete_folder);
+            delete.setVisibility(View.VISIBLE);
+            delete.setOnClickListener(v -> {
+                getData().remove(position);
+                notifyItemRemoved(position);
+                notifyItemRangeChanged(position, getData().size());
+                if (listener != null){
+                    listener.delete(getData().get(position), position);
+                }
+            });
+        }
     }
 
 }

@@ -74,6 +74,7 @@ public class EditActivity extends BaseActivity implements View.OnClickListener {
     private NoteViewModel mViewModel;
     public static final int CREATE_NOTE = 3239; //新建笔记
     public static final int Edit_NOTE = 8374; //修改笔记
+    private int mPosition; //从哪个位置点进来的,-1代表是新建的笔记
 
 
 
@@ -82,6 +83,7 @@ public class EditActivity extends BaseActivity implements View.OnClickListener {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_publish);
         mNote = (NoteBean) getIntent().getSerializableExtra("note");
+        mPosition = getIntent().getIntExtra("position", -1);
         binding.setOnClickListener(this);
         rxPermissions = new RxPermissions(this);
         mViewModel = new ViewModelProvider(this, new ViewModelProvider.AndroidViewModelFactory(getApplication())).get(NoteViewModel.class);
@@ -89,30 +91,13 @@ public class EditActivity extends BaseActivity implements View.OnClickListener {
         initEditor();
         //initThreshold();
         initViews();
-        if (mNote != null) {
-//            SharedPreferences sharedPreferences = getSharedPreferences("art", MODE_PRIVATE);
-//            String title = sharedPreferences.getString("title", "title");
-//            String content = sharedPreferences.getString("content", "");
-            binding.editName.setText(mNote.getTitle());
-            binding.richEditor.setHtml(mNote.getContent());
-        }
         initToolBar(findViewById(R.id.toolbar), "编辑", true, -1);
     }
 
-    public static void startActivity(Context context, NoteBean note) {
-        Intent intent = new Intent(context, EditActivity.class);
-        intent.putExtra("note", note);
-        context.startActivity(intent);
-    }
-
-    public static void startActivity(Context context, String kind) {
-        NoteBean noteBean = new NoteBean(null, null, null, kind, 0, LoginRepository.getInstance().getCurrentUser());
-        startActivity(context, noteBean);
-    }
-
-    public static void startActivityForResult(Fragment fragment, NoteBean note) {
+    public static void startActivityForResult(Fragment fragment, NoteBean note, int position) {
         Intent intent = new Intent(fragment.getContext(), EditActivity.class);
         intent.putExtra("note", note);
+        intent.putExtra("position", position);
         fragment.startActivityForResult(intent,Edit_NOTE);
     }
 
@@ -123,12 +108,6 @@ public class EditActivity extends BaseActivity implements View.OnClickListener {
         fragment.startActivityForResult(intent,CREATE_NOTE);
     }
 
-    public static void startActivityForResult(AppCompatActivity context, String kind) {
-        NoteBean noteBean = new NoteBean(null, null, null, kind, 0, LoginRepository.getInstance().getCurrentUser());
-        Intent intent = new Intent(context, EditActivity.class);
-        intent.putExtra("note", noteBean);
-        context.startActivityForResult(intent,CREATE_NOTE);
-    }
 
     private void initEditor() {
         //输入框显示字体的大小
@@ -356,6 +335,8 @@ public class EditActivity extends BaseActivity implements View.OnClickListener {
 
     private void initViews() {
         binding.folderName.setText(mNote.getKind());
+        binding.editName.setText(mNote.getTitle());
+        binding.richEditor.setHtml(mNote.getContent());
         //字体大小选择器
         binding.seekbar.setMax(100);
         binding.seekbar.setProgress(25);
@@ -546,9 +527,8 @@ public class EditActivity extends BaseActivity implements View.OnClickListener {
                 }
             }
         } else if (requestCode == FolderActivity.REQUEST_CODE) {
-            if (resultCode == FolderActivity.RESULT_CODE) {
-                mNote.setKind(data.getStringExtra(FolderActivity.SELECT_KIND));
-                binding.folderName.setText(mNote.getKind());
+            if (resultCode == FolderActivity.Type.selectKind) {
+                binding.folderName.setText(data.getStringExtra(FolderActivity.SELECT_KIND));
             }
         }
     }
@@ -606,6 +586,7 @@ public class EditActivity extends BaseActivity implements View.OnClickListener {
         }
         Intent intent = new Intent();
         intent.putExtra("note", mNote);
+        intent.putExtra("position", mPosition);
         setResult(200,intent);
     }
 
@@ -621,6 +602,8 @@ public class EditActivity extends BaseActivity implements View.OnClickListener {
         } else{
             isChange |= !TextUtils.isEmpty(binding.richEditor.getHtml());
         }
+        String s1 = binding.folderName.getText().toString();
+        String s2 = mNote.getKind();
         return isChange || !binding.folderName.getText().toString().equals(mNote.getKind());
 
     }

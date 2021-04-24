@@ -17,6 +17,17 @@ public class NoteRepository extends BaseRepository<NoteBean> {
 
     private static volatile NoteRepository instance;
     private SQLiteDatabase database;
+    private QueryByKindListener queryListener;
+    private static final String ALL = "全部";
+
+    public interface QueryByKindListener{
+        void onSuccess(List<NoteBean> result, String kind);
+        void onFailed(String errMsg);
+    }
+
+    public void setQueryListener(QueryByKindListener listener){
+        this.queryListener = listener;
+    }
 
     private NoteRepository(Context context){
         if (context != null) {
@@ -49,6 +60,7 @@ public class NoteRepository extends BaseRepository<NoteBean> {
         }
     }
 
+    //查询用户全部笔记
     public void queryNotes(UserBean user) {
         if (database != null) {
             Cursor cursor = database.rawQuery("select * from note where userid = ?",
@@ -66,17 +78,64 @@ public class NoteRepository extends BaseRepository<NoteBean> {
                     noteList.add(note);
 
                 } while (cursor.moveToNext());
-                for (LoadListener<NoteBean> listener : getListeners()){
-                    listener.onSuccess(noteList);
+                if (queryListener != null){
+                    queryListener.onSuccess(noteList, ALL);
                 }
             } else {
                 //数据库没有
-                for (LoadListener<NoteBean> listener : getListeners()) {
-                    listener.onFailed("");
+                if (queryListener != null){
+                    queryListener.onFailed("");
                 }
             }
         }
     }
 
+    //查询用户某个分类的笔记
+    public void queryNotesByKind(UserBean user, String kind){
+        if (ALL.equals(kind)){
+            //查询全部笔记
+            queryNotes(user);
+        } else if (database != null) {
+            Cursor cursor = database.rawQuery("select * from note where userid = ? and kind = ?",
+                    new String[]{String.valueOf(user.getUserId()), kind});
+            if (cursor.moveToFirst()) {
+                List<NoteBean> noteList = new ArrayList<>();
 
+                do {
+                    NoteBean note = new NoteBean(cursor.getString(cursor.getColumnIndex("title")),
+                            cursor.getString(cursor.getColumnIndex("content")),
+                            cursor.getString(cursor.getColumnIndex("url")),
+                            kind,
+                            cursor.getLong(cursor.getColumnIndex("time")),
+                            user);
+                    noteList.add(note);
+
+                } while (cursor.moveToNext());
+                if (queryListener != null){
+                    queryListener.onSuccess(noteList, kind);
+                }
+            } else {
+                //数据库没有
+                if (queryListener != null){
+                    queryListener.onFailed("");
+                }
+            }
+        }
+    }
+
+    //删除笔记
+    public void deleteNote(NoteBean bean){
+        if (database != null){
+            database.execSQL("delete from note where time = ? and userid = ?"
+                    , new String[]{String.valueOf(bean.getTime()), String.valueOf(bean.getUserBean().getUserId())});
+        }
+    }
+
+    //删除用户某个分类的全部笔记
+    public void deleteNoteByKind(int userId, String kind){
+        if (database != null){
+            database.execSQL("delete from note where kind = ? and userid = ?"
+                    , new String[]{kind, String.valueOf(userId)});
+        }
+    }
 }

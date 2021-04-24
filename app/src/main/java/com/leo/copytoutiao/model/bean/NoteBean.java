@@ -1,11 +1,13 @@
 package com.leo.copytoutiao.model.bean;
 
 import java.io.Serializable;
+import java.util.HashMap;
 
 /**
  * Created by tk on 2021/4/12
  */
 public class NoteBean implements Serializable {
+    private int id;
     private String title;
     private String content;
     private String url;
@@ -20,6 +22,9 @@ public class NoteBean implements Serializable {
         this.kind = kind;
         this.time = time;
         this.userBean = userBean;
+        int h;
+        id = (h = userBean.getUserId()) ^ (h >>> 16);
+
     }
 
     public String getTitle() {
@@ -64,5 +69,13 @@ public class NoteBean implements Serializable {
 
     public UserBean getUserBean() {
         return userBean;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 }

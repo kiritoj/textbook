@@ -24,6 +24,7 @@ import com.leo.copytoutiao.model.bean.FolderBean;
 import com.leo.copytoutiao.model.repository.LoginRepository;
 import com.leo.copytoutiao.view.adapter.FolderRecyclerAdapter;
 import com.leo.copytoutiao.viewmodel.FolderViewModel;
+import com.leo.copytoutiao.viewmodel.NoteViewModel;
 import com.taoke.base.BaseActivity;
 import com.taoke.base.BaseRecyclerAdapter;
 
@@ -36,16 +37,30 @@ public class FolderActivity extends BaseActivity {
     public static final int REQUEST_CODE = 10;
     public static final int RESULT_CODE = 20;
     public static final String KIND = "kind";
+    public static final String TYPE = "type";
     private ActivityFolderBinding mBinding;
     private FolderViewModel mViewModel;
-    FolderRecyclerAdapter mAdapter;
+    private int type;
+    private FolderRecyclerAdapter mAdapter;
+    private ArrayList<String> removeFolders = new ArrayList<>();
+
+    public interface Type{
+        int selectKind = 31;//选择分类
+        int manageKind = 32;//管理分类
+    }
+
+    public interface Status{
+        int delete = 0;
+        int add = 1;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mBinding = DataBindingUtil.setContentView(this, R.layout.activity_folder);
         mViewModel = new ViewModelProvider(this, new ViewModelProvider.AndroidViewModelFactory(this.getApplication())).get(FolderViewModel.class);
-        mViewModel.queryFolder(LoginRepository.getInstance().getCurrentUser().getUserId());
+        //mViewModel.queryFolder(LoginRepository.getInstance().getCurrentUser().getUserId());
+        type = getIntent().getIntExtra(TYPE,Type.selectKind);
         initView();
         initObserve();
         initToolBar(findViewById(R.id.toolbar), "笔记归属文件夹", true, -1);
@@ -63,8 +78,18 @@ public class FolderActivity extends BaseActivity {
         context.startActivityForResult(intent,requestCode);
     }
 
+    public static void startActivityForResult(AppCompatActivity context, String kind, int requestCode,int type){
+        Intent intent = new Intent(context, FolderActivity.class);
+        intent.putExtra(KIND, kind);
+        intent.putExtra(TYPE, type);
+        context.startActivityForResult(intent,requestCode);
+    }
+
     public void initView(){
         List<FolderBean> data = new ArrayList<>();
+        data.add(new FolderBean(123,"工作"));
+        data.add(new FolderBean(123,"随机"));
+        data.add(new FolderBean(123,"待办"));
         if (mViewModel.getFolders().getValue() != null){
             data.addAll(mViewModel.getFolders().getValue());
         }
@@ -72,8 +97,13 @@ public class FolderActivity extends BaseActivity {
         mAdapter.setOnClickListener(bean -> {
                 Intent intent = new Intent();
                 intent.putExtra(SELECT_KIND,bean.getName());
-                setResult(RESULT_CODE, intent);
+                setResult(Type.selectKind, intent);
                 finish();
+
+        });
+        mAdapter.setDeleteListener((bean, position) -> {
+            mViewModel.deleteFolder(bean);
+            removeFolders.add(bean.getName());
 
         });
         mBinding.recyclerView.setLayoutManager(new LinearLayoutManager(FolderActivity.this));
@@ -95,6 +125,9 @@ public class FolderActivity extends BaseActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        if (type == Type.selectKind){
+            return super.onCreateOptionsMenu(menu);
+        }
         getMenuInflater().inflate(getMenuRes(), menu);
         return true;
     }
@@ -114,8 +147,9 @@ public class FolderActivity extends BaseActivity {
                             String kind = editText.getText().toString();
                             if (!TextUtils.isEmpty(kind)){
                                 Intent intent = new Intent();
-                                intent.putExtra(SELECT_KIND,kind);
-                                setResult(RESULT_CODE, intent);
+                                intent.putStringArrayListExtra("remove",removeFolders);
+                                intent.putExtra("add",kind);
+                                setResult(Type.manageKind, intent);
                                 mViewModel.addFolder(kind);
                                 finish();
                             }
@@ -125,5 +159,13 @@ public class FolderActivity extends BaseActivity {
                 break;
         }
         return true;
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent();
+        intent.putStringArrayListExtra("remove",removeFolders);
+        setResult(Type.manageKind ,intent);
+        super.onBackPressed();
     }
 }

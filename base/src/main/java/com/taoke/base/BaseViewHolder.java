@@ -76,4 +76,7 @@ public class BaseViewHolder extends RecyclerView.ViewHolder {
         return this;
     }
 
+    public View getItemView() {
+        return mItemView;
+    }
 }

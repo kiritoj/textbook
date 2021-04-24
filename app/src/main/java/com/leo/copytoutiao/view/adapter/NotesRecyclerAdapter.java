@@ -2,8 +2,12 @@ package com.leo.copytoutiao.view.adapter;
 
 import android.content.Context;
 import android.text.TextUtils;
+import android.view.View;
+
+import androidx.fragment.app.Fragment;
 
 import com.leo.copytoutiao.R;
+import com.leo.copytoutiao.activity.EditActivity;
 import com.leo.copytoutiao.model.bean.NoteBean;
 import com.leo.copytoutiao.utils.HtmlUtil;
 import com.leo.copytoutiao.utils.Utils;
@@ -17,14 +21,27 @@ import java.util.List;
  */
 public class NotesRecyclerAdapter extends BaseRecyclerAdapter<NoteBean> {
 
+    private Fragment mFragment;
+    private OnItemDeleteListener dListener;
+
     public interface NOTE_TYPE{
         int TEXT = 1; //文字笔记
         int TEXT_PIC = 2; //图文笔记
     }
 
-    public NotesRecyclerAdapter(List<NoteBean> data, int... layoutIds) {
-        super(data, layoutIds);
+    public void setDeleteListener(OnItemDeleteListener listener){
+        dListener =  listener;
     }
+
+    public NotesRecyclerAdapter(Fragment fragment, List<NoteBean> data, int... layoutIds) {
+        super(data, layoutIds);
+        mFragment = fragment;
+    }
+
+    public interface OnItemDeleteListener{
+        void deleteItem(NoteBean note, int position);
+    }
+
 
     @Override
     public void convert(BaseViewHolder holder, int position) {
@@ -38,6 +55,34 @@ public class NotesRecyclerAdapter extends BaseRecyclerAdapter<NoteBean> {
             holder.setText(R.id.time, Utils.timeStamp2Date(mData.get(position).getTime()));
             holder.setImageFromFile(R.id.image, mData.get(position).getUrl());
         }
+        holder.getItemView().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                EditActivity.startActivityForResult(mFragment, getData().get(position), position);
+            }
+        });
+        holder.getItemView().setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                holder.getView(R.id.button_container).setVisibility(View.VISIBLE);
+                return true;
+            }
+        });
+        holder.setOnClickListener(R.id.delete, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //删除
+                if (dListener != null){
+                    dListener.deleteItem(getData().get(position), position);
+                }
+            }
+        });
+        holder.setOnClickListener(R.id.cancel, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                holder.getView(R.id.button_container).setVisibility(View.GONE);
+            }
+        });
     }
 
     @Override

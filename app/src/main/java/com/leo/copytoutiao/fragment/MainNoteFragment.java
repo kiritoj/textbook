@@ -19,6 +19,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.leo.copytoutiao.R;
 import com.leo.copytoutiao.activity.EditActivity;
 import com.leo.copytoutiao.activity.FolderActivity;
+import com.leo.copytoutiao.activity.SearchActivity;
 import com.leo.copytoutiao.databinding.FragmentMainNoteBinding;
 import com.leo.copytoutiao.databinding.FragmentNotesBinding;
 import com.leo.copytoutiao.model.bean.NoteBean;
@@ -38,7 +39,7 @@ import io.reactivex.internal.operators.observable.ObservableElementAt;
 public class MainNoteFragment extends BaseFragment implements View.OnClickListener {
     private FragmentMainNoteBinding mBinding;
     private NoteViewModel mViewModel;
-    private ArrayList<String> mTitles;
+    private ArrayList<String> mTitles = new ArrayList<>();
     private List<Fragment> fragments;
     private BaseFragmentAdapter adapter;
 
@@ -68,7 +69,7 @@ public class MainNoteFragment extends BaseFragment implements View.OnClickListen
         for (String kind : mTitles) {
             fragments.add(NotesFragment.getInstance(kind));
         }
-        adapter = new BaseFragmentAdapter(getChildFragmentManager(),mTitles,fragments);
+        adapter = new BaseFragmentAdapter(getChildFragmentManager(),mTitles.size(), mTitles,fragments);
         mBinding.viewpager.setAdapter(adapter);
         mBinding.tabLayout.setupWithViewPager(mBinding.viewpager);
     }
@@ -87,8 +88,10 @@ public class MainNoteFragment extends BaseFragment implements View.OnClickListen
                 EditActivity.startActivityForResult(this,kind);
                 break;
             case R.id.fold_manage:
-                FolderActivity.startActivityForResult((AppCompatActivity) getActivity(), null, FolderActivity.REQUEST_CODE, FolderActivity.Type.manageKind);
+                FolderActivity.startActivityForResult(this, null, FolderActivity.REQUEST_CODE, FolderActivity.Type.manageKind);
                 break;
+            case R.id.search_contain:
+                SearchActivity.startActivity(getContext());
         }
     }
 

@@ -29,6 +29,7 @@
                 android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
                 app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
                 <LinearLayout
+                    android:id="@+id/search_contain"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
@@ -39,7 +40,8 @@
                     android:paddingLeft="@dimen/dp_10"
                     android:paddingRight="@dimen/dp_10"
                     android:paddingTop="@dimen/dp_5"
-                    android:paddingBottom="@dimen/dp_5">
+                    android:paddingBottom="@dimen/dp_5"
+                    android:onClick="@{onClickListener}">
 
                     <ImageView
                         android:layout_width="@dimen/dp_30"

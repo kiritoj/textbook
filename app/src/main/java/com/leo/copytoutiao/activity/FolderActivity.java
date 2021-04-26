@@ -3,6 +3,7 @@ package com.leo.copytoutiao.activity;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
+import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -78,11 +79,11 @@ public class FolderActivity extends BaseActivity {
         context.startActivityForResult(intent,requestCode);
     }
 
-    public static void startActivityForResult(AppCompatActivity context, String kind, int requestCode,int type){
-        Intent intent = new Intent(context, FolderActivity.class);
+    public static void startActivityForResult(Fragment fragment, String kind, int requestCode, int type){
+        Intent intent = new Intent(fragment.getContext(), FolderActivity.class);
         intent.putExtra(KIND, kind);
         intent.putExtra(TYPE, type);
-        context.startActivityForResult(intent,requestCode);
+        fragment.startActivityForResult(intent,requestCode);
     }
 
     public void initView(){
@@ -94,7 +95,7 @@ public class FolderActivity extends BaseActivity {
             data.addAll(mViewModel.getFolders().getValue());
         }
         mAdapter = new FolderRecyclerAdapter("工作",data,R.layout.item_folder);
-        mAdapter.setOnClickListener(bean -> {
+        mAdapter.setOnClickListener((bean, position) -> {
                 Intent intent = new Intent();
                 intent.putExtra(SELECT_KIND,bean.getName());
                 setResult(Type.selectKind, intent);

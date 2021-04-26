@@ -48,7 +48,7 @@ public class FolderRecyclerAdapter extends BaseRecyclerAdapter<FolderBean> {
             @Override
             public void onClick(View v) {
                 if (mListener != null){
-                    mListener.onClick(mData.get(position));
+                    mListener.onClick(mData.get(position), position);
                 }
             }
         });
@@ -56,12 +56,12 @@ public class FolderRecyclerAdapter extends BaseRecyclerAdapter<FolderBean> {
             ImageView delete = holder.getView(R.id.delete_folder);
             delete.setVisibility(View.VISIBLE);
             delete.setOnClickListener(v -> {
-                getData().remove(position);
-                notifyItemRemoved(position);
-                notifyItemRangeChanged(position, getData().size());
                 if (listener != null){
                     listener.delete(getData().get(position), position);
                 }
+                getData().remove(position);
+                notifyItemRemoved(position);
+                notifyItemRangeChanged(position, getData().size());
             });
         }
     }

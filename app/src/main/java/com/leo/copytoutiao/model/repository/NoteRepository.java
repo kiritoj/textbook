@@ -138,4 +138,29 @@ public class NoteRepository extends BaseRepository<NoteBean> {
                     , new String[]{kind, String.valueOf(userId)});
         }
     }
+
+    //模糊搜索
+    public void searchNote(String key, UserBean user, LoadListener<NoteBean> listener){
+        if (database != null){
+            Cursor cursor =  database.rawQuery("select * from note where title like ? or content like ?", new String[]{"%" + key + "%"});
+            if (cursor.moveToFirst()){
+                List<NoteBean> list = new ArrayList<>();
+                do {
+                    NoteBean note = new NoteBean(cursor.getString(cursor.getColumnIndex("title")),
+                            cursor.getString(cursor.getColumnIndex("content")),
+                            cursor.getString(cursor.getColumnIndex("url")),
+                            cursor.getString(cursor.getColumnIndex("kind")),
+                            cursor.getLong(cursor.getColumnIndex("time")),
+                            user);
+                    list.add(note);
+
+                } while (cursor.moveToNext());
+                if (listener != null){
+                    listener.onSuccess(list);
+                }
+            } else if (listener != null){
+                listener.onFailed("");
+            }
+        }
+    }
 }

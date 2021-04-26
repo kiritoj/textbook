@@ -108,6 +108,13 @@ public class EditActivity extends BaseActivity implements View.OnClickListener {
         fragment.startActivityForResult(intent,CREATE_NOTE);
     }
 
+    public static void startActivityForResult(AppCompatActivity context, NoteBean note, int position){
+        Intent intent = new Intent(context, EditActivity.class);
+        intent.putExtra("note", note);
+        intent.putExtra("position", position);
+        context.startActivityForResult(intent, Edit_NOTE);
+    }
+
 
     private void initEditor() {
         //输入框显示字体的大小

@@ -1,5 +1,7 @@
 package com.leo.copytoutiao.model.bean;
 
+import androidx.annotation.Nullable;
+
 import java.io.Serializable;
 import java.util.HashMap;
 
@@ -78,4 +80,16 @@ public class NoteBean implements Serializable {
     public void setId(int id) {
         this.id = id;
     }
+
+//    @Override
+//    public boolean equals(@Nullable Object obj) {
+//        if (this == obj){
+//            return true;
+//        }
+//        if (obj instanceof NoteBean){
+//            return false;
+//        }
+//        NoteBean bean = (NoteBean)obj;
+//        return id == bean.id;
+//    }
 }

@@ -21,8 +21,8 @@ public abstract class BaseRecyclerAdapter<T> extends RecyclerView.Adapter<Recycl
         return mLayoutIds[0];
     }
 
-    public static interface OnItemClickListener<T>{
-        void onClick(T t);
+    public  interface OnItemClickListener<T>{
+        void onClick(T t, int position);
     }
 
     @NonNull

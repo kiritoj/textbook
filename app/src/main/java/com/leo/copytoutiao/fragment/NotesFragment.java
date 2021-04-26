@@ -24,6 +24,7 @@ import com.leo.copytoutiao.utils.Utils;
 import com.leo.copytoutiao.view.adapter.NotesRecyclerAdapter;
 import com.leo.copytoutiao.viewmodel.NoteViewModel;
 import com.taoke.base.BaseFragment;
+import com.taoke.base.BaseRecyclerAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -77,7 +78,10 @@ public class NotesFragment extends BaseFragment {
             noteBeans.addAll(mViewModel.getmNoteMap().get(mKind).getValue());
 
         }
-        mAdapter = new NotesRecyclerAdapter(getParentFragment(), noteBeans, R.layout.item_note_text, R.layout.item_note_text_pic);
+        mAdapter = new NotesRecyclerAdapter(noteBeans, R.layout.item_note_text, R.layout.item_note_text_pic);
+        mAdapter.setOnClickListener((bean, position) -> {
+            EditActivity.startActivityForResult(getParentFragment(), bean, position);
+        });
         mAdapter.setDeleteListener((note, position) -> {
             ((MainNoteFragment)getParentFragment()).deleteItem(note, position);
         });

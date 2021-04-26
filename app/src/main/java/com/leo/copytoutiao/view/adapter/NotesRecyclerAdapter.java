@@ -21,7 +21,6 @@ import java.util.List;
  */
 public class NotesRecyclerAdapter extends BaseRecyclerAdapter<NoteBean> {
 
-    private Fragment mFragment;
     private OnItemDeleteListener dListener;
 
     public interface NOTE_TYPE{
@@ -33,9 +32,8 @@ public class NotesRecyclerAdapter extends BaseRecyclerAdapter<NoteBean> {
         dListener =  listener;
     }
 
-    public NotesRecyclerAdapter(Fragment fragment, List<NoteBean> data, int... layoutIds) {
+    public NotesRecyclerAdapter(List<NoteBean> data, int... layoutIds) {
         super(data, layoutIds);
-        mFragment = fragment;
     }
 
     public interface OnItemDeleteListener{
@@ -58,7 +56,9 @@ public class NotesRecyclerAdapter extends BaseRecyclerAdapter<NoteBean> {
         holder.getItemView().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                EditActivity.startActivityForResult(mFragment, getData().get(position), position);
+                if (mListener != null){
+                    mListener.onClick(getData().get(position), position);
+                }
             }
         });
         holder.getItemView().setOnLongClickListener(new View.OnLongClickListener() {

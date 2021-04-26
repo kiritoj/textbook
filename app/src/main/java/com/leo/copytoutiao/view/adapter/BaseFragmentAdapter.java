@@ -22,11 +22,13 @@ public class BaseFragmentAdapter extends FragmentPagerAdapter {
         super(fm);
     }
 
-    public BaseFragmentAdapter(FragmentManager fm, ArrayList<String> titles, List<Fragment> fragments){
+    public BaseFragmentAdapter(FragmentManager fm, int count, ArrayList<String> titles, List<Fragment> fragments){
         this(fm);
+        mCount = count;
         mTitles = titles;
         mFragments = fragments;
     }
+
 
     @Override
     public CharSequence getPageTitle(int position) {
@@ -43,7 +45,7 @@ public class BaseFragmentAdapter extends FragmentPagerAdapter {
 
     @Override
     public int getCount() {
-        return mTitles.size();
+        return  mTitles == null ? mCount : mTitles.size();
     }
 
     @Override

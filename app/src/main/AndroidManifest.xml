@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
 
     <application
         android:allowBackup="true"
@@ -53,6 +54,11 @@
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:theme="@style/NoTitleFullscreen" />
+
+        <service
+            android:name=".service.AlarmService"
+            android:enabled="true"
+            android:exported="false"/>
     </application>
 
 </manifest>

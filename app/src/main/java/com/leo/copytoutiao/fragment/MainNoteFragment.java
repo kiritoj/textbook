@@ -84,7 +84,7 @@ public class MainNoteFragment extends BaseFragment implements View.OnClickListen
         switch (v.getId()){
             case R.id.float_button:
                 int index = mBinding.viewpager.getCurrentItem();
-                String kind = index == 0 ? mTitles.get(0) : mTitles.get(index);
+                String kind = index == 0 ? mTitles.get(1) : mTitles.get(index);
                 EditActivity.startActivityForResult(this,kind);
                 break;
             case R.id.fold_manage:

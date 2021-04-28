@@ -115,6 +115,7 @@ public class NotesFragment extends BaseFragment {
         });
         //不允许下拉加载更多
         mBinding.refresh.setEnableLoadmore(false);
+        mBinding.refresh.setEnableRefresh(false);
     }
 
     @Override

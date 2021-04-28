@@ -48,8 +48,11 @@ public class NoteRepository extends BaseRepository<NoteBean> {
 
     public void insertNote(NoteBean bean){
         if (database != null) {
-            database.execSQL("insert into note (title, content, url, kind, time,userid) values (?,?,?,?,?,?)"
-                    , new String[]{bean.getTitle(), bean.getContent(), bean.getUrl(), bean.getKind(), String.valueOf(bean.getTime()), String.valueOf(bean.getUserBean().getUserId())});
+            database.execSQL("insert into note (title, content, url, kind, time,userid,alarmtime) values (?,?,?,?,?,?,?)"
+                    , new String[]{bean.getTitle(), bean.getContent(), bean.getUrl(), bean.getKind(),
+                            String.valueOf(bean.getTime()),
+                            String.valueOf(bean.getUserBean().getUserId()),
+                            String.valueOf(bean.getAlarmTime())});
         }
     }
 
@@ -74,7 +77,8 @@ public class NoteRepository extends BaseRepository<NoteBean> {
                             cursor.getString(cursor.getColumnIndex("url")),
                             cursor.getString(cursor.getColumnIndex("kind")),
                             cursor.getLong(cursor.getColumnIndex("time")),
-                            user);
+                            user,
+                            cursor.getLong(cursor.getColumnIndex("alarmtime")));
                     noteList.add(note);
 
                 } while (cursor.moveToNext());
@@ -107,7 +111,8 @@ public class NoteRepository extends BaseRepository<NoteBean> {
                             cursor.getString(cursor.getColumnIndex("url")),
                             kind,
                             cursor.getLong(cursor.getColumnIndex("time")),
-                            user);
+                            user,
+                            cursor.getLong(cursor.getColumnIndex("alarmtime")));
                     noteList.add(note);
 
                 } while (cursor.moveToNext());
@@ -151,7 +156,8 @@ public class NoteRepository extends BaseRepository<NoteBean> {
                             cursor.getString(cursor.getColumnIndex("url")),
                             cursor.getString(cursor.getColumnIndex("kind")),
                             cursor.getLong(cursor.getColumnIndex("time")),
-                            user);
+                            user,
+                            cursor.getLong(cursor.getColumnIndex("alarmtime")));
                     list.add(note);
 
                 } while (cursor.moveToNext());

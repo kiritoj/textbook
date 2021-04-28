@@ -15,6 +15,7 @@ import com.leo.copytoutiao.R;
 import com.leo.copytoutiao.databinding.ActivityHomeBinding;
 import com.leo.copytoutiao.fragment.MainNoteFragment;
 import com.leo.copytoutiao.fragment.UserFragment;
+import com.leo.copytoutiao.service.AlarmService;
 import com.leo.copytoutiao.view.adapter.BaseFragmentAdapter;
 import com.leo.copytoutiao.viewmodel.NoteViewModel;
 
@@ -32,6 +33,8 @@ public class HomeActivity extends AppCompatActivity {
         mViewModel = new ViewModelProvider(this, new ViewModelProvider.AndroidViewModelFactory(this.getApplication())).get(NoteViewModel.class);
         //在activity中预拉取数据，fragment直接使用
         mViewModel.queryNotes();
+        Intent intent = new Intent(HomeActivity.this, AlarmService.class);
+        startService(intent);
         initViews();
         initListener();
     }

@@ -2,6 +2,7 @@ package com.leo.copytoutiao.activity;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -30,11 +31,14 @@ import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.bigkoo.pickerview.TimePickerView;
 import com.leo.copytoutiao.R;
 import com.leo.copytoutiao.databinding.ActivityPublishBinding;
 import com.leo.copytoutiao.model.bean.NoteBean;
 import com.leo.copytoutiao.model.db.DataBaseHelper;
 import com.leo.copytoutiao.model.repository.LoginRepository;
+import com.leo.copytoutiao.service.AlarmService;
+import com.leo.copytoutiao.utils.AlarmManagerUtil;
 import com.leo.copytoutiao.utils.Color;
 import com.leo.copytoutiao.utils.HtmlUtil;
 import com.leo.copytoutiao.utils.KeyBoardUtils;
@@ -51,6 +55,8 @@ import com.tbruyelle.rxpermissions2.RxPermissions;
 import com.yalantis.ucrop.UCropActivity;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import static com.yalantis.ucrop.UCrop.EXTRA_OUTPUT_URI;
@@ -75,6 +81,7 @@ public class EditActivity extends BaseActivity implements View.OnClickListener {
     public static final int CREATE_NOTE = 3239; //新建笔记
     public static final int Edit_NOTE = 8374; //修改笔记
     private int mPosition; //从哪个位置点进来的,-1代表是新建的笔记
+    private TimePickerView timePicker;
 
 
 
@@ -102,7 +109,7 @@ public class EditActivity extends BaseActivity implements View.OnClickListener {
     }
 
     public static void startActivityForResult(Fragment fragment, String kind){
-        NoteBean note = new NoteBean(null, null, null, kind, 0, LoginRepository.getInstance().getCurrentUser());
+        NoteBean note = new NoteBean(null, null, null, kind, 0, LoginRepository.getInstance().getCurrentUser(), 0);
         Intent intent = new Intent(fragment.getContext(), EditActivity.class);
         intent.putExtra("note", note);
         fragment.startActivityForResult(intent,CREATE_NOTE);
@@ -367,6 +374,37 @@ public class EditActivity extends BaseActivity implements View.OnClickListener {
             }
         });
 
+        //时间选择
+        Calendar selectedDate = Calendar.getInstance();
+        Calendar startDate = Calendar.getInstance();
+        startDate.set(2020, 0, 1);
+        Calendar endDate = Calendar.getInstance();
+        endDate.set(2040, 11, 31);
+        timePicker = new TimePickerView.Builder(this, new TimePickerView.OnTimeSelectListener() {
+            @Override
+            public void onTimeSelect(Date date, View v) {//选中事件回调
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(date);
+                AlarmManagerUtil util = AlarmManagerUtil.getInstance(EditActivity.this);
+                Intent intent = new Intent(EditActivity.this, AlarmService.class);
+                //这里直接传序列化的Note对象，AlarmService取出来的null
+                //不知道是什么原因,先直接传title和content
+                //intent.putExtra("alarmNote", mNote);
+                intent.putExtra("title",mNote.getTitle());
+                intent.putExtra("content",mNote.getContent());
+                PendingIntent pendingIntent = PendingIntent.getService(EditActivity.this,0, intent, 0);
+                util.addAlarm(calendar, pendingIntent);
+                Toast.makeText(EditActivity.this,"设置提醒成功",Toast.LENGTH_SHORT).show();
+            }
+        }).setType(new boolean[]{true, true, true, true, true, false})
+                .setLabel(" 年", "月", "日", "时", "", "")
+                .isCenterLabel(true)
+                .setDividerColor(android.graphics.Color.DKGRAY)
+                .setContentSize(20)
+                .setDate(selectedDate)
+                .setRangDate(startDate, endDate)
+                .setDecorView(null)
+                .build();
     }
 
     @Override
@@ -558,7 +596,7 @@ public class EditActivity extends BaseActivity implements View.OnClickListener {
                 binding.richEditor.redo();
                 break;
             case R.id.edit_finish:
-                if (TextUtils.isEmpty(binding.richEditor.getHtml())) {
+                if (TextUtils.isEmpty(binding.richEditor.getHtml()) && TextUtils.isEmpty(binding.editName.getText())) {
                     Toast.makeText(EditActivity.this, "没有可以保存的内容", Toast.LENGTH_SHORT).show();
                 } else {
                     if (isChange()) {
@@ -567,18 +605,22 @@ public class EditActivity extends BaseActivity implements View.OnClickListener {
                 }
                 binding.richEditor.clearFocusEditor();
                 break;
+            case R.id.tip:
+                if (TextUtils.isEmpty(mNote.getTitle()) && TextUtils.isEmpty(mNote.getContent())){
+                    Toast.makeText(EditActivity.this, "该笔记还没有被保存,无法设置提醒",Toast.LENGTH_SHORT).show();
+                } else if (timePicker != null){
+                    timePicker.show();
+                }
         }
         return true;
     }
 
     public void save() {
-        DataBaseHelper helper = new DataBaseHelper(EditActivity.this, "Notes.db", 1);
-        SQLiteDatabase database = helper.getWritableDatabase();
         long time = Utils.getCurrentTime();
         int userId = mNote.getUserBean().getUserId();
         //更新相关属性
         mNote.setTitle(TextUtils.isEmpty(binding.editName.getText().toString()) ?
-                "无标题" : binding.editName.getText().toString());
+                "无标题笔记" : binding.editName.getText().toString());
         mNote.setContent(binding.richEditor.getHtml());
         mNote.setKind(binding.folderName.getText().toString());
         //处理第一张图片

@@ -16,14 +16,16 @@ public class NoteBean implements Serializable {
     private String kind; //类别
     private long time;
     private final UserBean userBean;
+    private long alarmTime;
 
-    public NoteBean(String title, String content, String url, String kind, long time, UserBean userBean){
+    public NoteBean(String title, String content, String url, String kind, long time, UserBean userBean, long alarmTime){
         this.title = title ;
         this.content = content;
         this.url = url;
         this.kind = kind;
         this.time = time;
         this.userBean = userBean;
+        this.alarmTime = alarmTime;
         int h;
         id = (h = userBean.getUserId()) ^ (h >>> 16);
 
@@ -81,7 +83,15 @@ public class NoteBean implements Serializable {
         this.id = id;
     }
 
-//    @Override
+    public long getAlarmTime() {
+        return alarmTime;
+    }
+
+    public void setAlarmTime(long alarmTime) {
+        this.alarmTime = alarmTime;
+    }
+
+    //    @Override
 //    public boolean equals(@Nullable Object obj) {
 //        if (this == obj){
 //            return true;

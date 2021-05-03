@@ -36,6 +36,9 @@ dependencies {
     implementation 'androidx.navigation:navigation-fragment:2.1.0'
     implementation 'androidx.navigation:navigation-ui:2.1.0'
     implementation 'androidx.viewpager:viewpager:1.0.0'
+    implementation 'androidx.annotation:annotation:1.1.0'
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.2.0'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
@@ -44,6 +47,9 @@ dependencies {
     implementation 'com.scwang.smartrefresh:SmartRefreshLayout:1.0.3'
     implementation 'com.github.bumptech.glide:glide:4.9.0'
     implementation "com.contrarywind:Android-PickerView:3.2.7"
+    //leancloud数据存储
+    implementation 'cn.leancloud:storage-android:7.2.6'
+    implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
     implementation project(path: ':ucrop')
     implementation project(path: ':imagepicker')
     implementation project(path: ':base')

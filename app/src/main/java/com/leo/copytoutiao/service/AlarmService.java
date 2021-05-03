@@ -36,7 +36,7 @@ public class AlarmService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-        // TODO: Return the communication channel to the service.
+        // TODO: Return the communication channel to the servi ce.
         throw new UnsupportedOperationException("Not yet implemented");
     }
 

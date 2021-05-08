@@ -11,6 +11,7 @@ import androidx.databinding.DataBindingUtil;
 
 import com.leo.copytoutiao.R;
 import com.leo.copytoutiao.databinding.FragmentUserBinding;
+import com.leo.copytoutiao.model.repository.LoginRepository;
 import com.taoke.base.BaseFragment;
 
 /**
@@ -23,6 +24,7 @@ public class UserFragment extends BaseFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         mBinding = DataBindingUtil.inflate(inflater, getLayoutRes(), container, false);
+        mBinding.username.setText(LoginRepository.getInstance(getActivity().getApplicationContext()).getCurrentUser().getName());
         return mBinding.getRoot();
     }
 

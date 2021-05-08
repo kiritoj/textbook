@@ -14,7 +14,7 @@ import java.util.List;
  */
 
 public class BaseFragmentAdapter extends FragmentPagerAdapter {
-    private ArrayList<String> mTitles;
+    private List<String> mTitles;
     private int mCount;
     private List<Fragment> mFragments;
 
@@ -22,7 +22,7 @@ public class BaseFragmentAdapter extends FragmentPagerAdapter {
         super(fm);
     }
 
-    public BaseFragmentAdapter(FragmentManager fm, int count, ArrayList<String> titles, List<Fragment> fragments){
+    public BaseFragmentAdapter(FragmentManager fm, int count, List<String> titles, List<Fragment> fragments){
         this(fm);
         mCount = count;
         mTitles = titles;
@@ -51,5 +51,9 @@ public class BaseFragmentAdapter extends FragmentPagerAdapter {
     @Override
     public void destroyItem(ViewGroup container, int position, Object object) {
         super.destroyItem(container, position, object);
+    }
+
+    public List<String> getTitles() {
+        return mTitles;
     }
 }

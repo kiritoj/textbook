@@ -88,9 +88,9 @@ public class FolderActivity extends BaseActivity {
 
     public void initView(){
         List<FolderBean> data = new ArrayList<>();
-        data.add(new FolderBean(123,"工作"));
-        data.add(new FolderBean(123,"随机"));
-        data.add(new FolderBean(123,"待办"));
+        data.add(new FolderBean("qwe","工作"));
+        data.add(new FolderBean("qwe","随机"));
+        data.add(new FolderBean("qwe","待办"));
         if (mViewModel.getFolders().getValue() != null){
             data.addAll(mViewModel.getFolders().getValue());
         }

@@ -18,11 +18,11 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         //创建笔记表
-        final String createNote = "create table note (id integer primary key autoincrement, title text, content text, url text, kind text, time bigint, userid int, alarmtime bigint)";
+        final String createNote = "create table note (id text, title text, content text, url text, kind text, time bigint, username text, alarmtime bigint)";
         //用户表
-        final String createUser = "create table user(id integer, name text, password text)";
+        final String createUser = "create table user(name text, password text)";
         //类别表
-        final String createFolder = "create table folder(userid integer, name text)";
+        final String createFolder = "create table folder(username text, name text)";
         db.execSQL(createNote);
         db.execSQL(createUser);
         db.execSQL(createFolder);

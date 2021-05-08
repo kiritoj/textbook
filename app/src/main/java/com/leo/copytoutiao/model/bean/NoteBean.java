@@ -4,12 +4,13 @@ import androidx.annotation.Nullable;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.UUID;
 
 /**
  * Created by tk on 2021/4/12
  */
 public class NoteBean implements Serializable {
-    private int id;
+    private String id;
     private String title;
     private String content;
     private String url;
@@ -26,8 +27,7 @@ public class NoteBean implements Serializable {
         this.time = time;
         this.userBean = userBean;
         this.alarmTime = alarmTime;
-        int h;
-        id = (h = userBean.getUserId()) ^ (h >>> 16);
+        id = UUID.randomUUID().toString();
 
     }
 
@@ -75,11 +75,11 @@ public class NoteBean implements Serializable {
         return userBean;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 

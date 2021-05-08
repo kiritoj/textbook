@@ -14,68 +14,21 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-
-<!--    <com.google.android.material.tabs.TabLayout-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="@dimen/dp_38"-->
-<!--        android:id="@+id/main_tl"-->
-<!--        app:tabBackground="@drawable/selector_tab"-->
-<!--        app:tabIndicatorHeight="0dp"-->
-<!--        app:tabMode="scrollable"-->
-<!--        app:tabSelectedTextColor="@color/blue"-->
-<!--        app:tabMaxWidth="55dp"-->
-<!--        app:tabMinWidth="55dp"-->
-<!--        />-->
-
-
-
     <com.leo.copytoutiao.view.NoScrollViewPager
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:id="@+id/viewpager"
         />
-    <RadioGroup
-        android:id="@+id/radio_group"
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/nav"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:orientation="horizontal"
-        android:paddingTop="@dimen/dp_10"
-        android:paddingBottom="@dimen/dp_10"
-        android:background="@color/gray">
-        <RadioButton
-            android:id="@+id/r_button_1"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:checked="true"
-            android:text="首页"
-            android:button="@null"
-            android:drawableTop="@drawable/nav_home"
-            android:textColor="@drawable/nav_text_color"
-            android:gravity="center"/>
-        <RadioButton
-            android:id="@+id/r_button_2"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="资讯"
-            android:button="@null"
-            android:drawableTop="@drawable/nav_news"
-            android:textColor="@drawable/nav_text_color"
-            android:gravity="center"/>
-        <RadioButton
-            android:id="@+id/r_button_3"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="我的"
-            android:button="@null"
-            android:drawableTop="@drawable/nav_mine"
-            android:textColor="@drawable/nav_text_color"
-            android:gravity="center"/>
-    </RadioGroup>
+        android:background="@color/grey_f2"
+        app:menu="@menu/menu_bottom_nav"
+        app:itemTextColor="@color/nav_text_color"
+        app:labelVisibilityMode="auto"/>
 
 
 </LinearLayout>

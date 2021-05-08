@@ -50,8 +50,12 @@ public class AlarmService extends Service {
                     title, content, R.mipmap.ic_launcher, new long[]{0,1000,500,1000});
             notificationManager.notify(2, notification);
         }
+
         return super.onStartCommand(intent, flags, startId);
     }
+
+
+
 
     /**
      * Android 8.0以上创建通知渠道

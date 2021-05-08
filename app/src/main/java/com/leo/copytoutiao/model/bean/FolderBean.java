@@ -3,21 +3,18 @@ package com.leo.copytoutiao.model.bean;
 import androidx.annotation.Nullable;
 
 public class FolderBean {
-    private int userId;
+    private String username;
     private String name;
 
-    public FolderBean(int userId, String name) {
-        this.userId = userId;
+    public FolderBean(String username, String name) {
+        this.username = username;
         this.name = name;
     }
 
-    public int getUserId() {
-        return userId;
+    public String getUsername() {
+        return username;
     }
 
-    public void setUserId(int userId) {
-        this.userId = userId;
-    }
 
     public String getName() {
         return name;
@@ -36,6 +33,6 @@ public class FolderBean {
             return false;
         }
         FolderBean bean = (FolderBean) obj;
-        return userId == bean.userId  && name.equals(bean.name);
+        return username.equals(bean.username)  && name.equals(bean.name);
     }
 }

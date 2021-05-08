@@ -31,7 +31,7 @@
                 <LinearLayout
                     android:id="@+id/search_contain"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="35dp"
                     android:orientation="horizontal"
                     android:layout_marginLeft="@dimen/dp_30"
                     android:layout_marginRight="@dimen/dp_30"
@@ -66,8 +66,8 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                app:tabSelectedTextColor="#F47378"
-                app:tabIndicatorColor="#F47378"
+                app:tabSelectedTextColor="@color/blue"
+                app:tabIndicatorColor="@color/blue"
                 >
             </com.google.android.material.tabs.TabLayout>
             <ImageView
@@ -81,7 +81,7 @@
 
         <View
             android:layout_width="match_parent"
-            android:layout_height="@dimen/dp_1"
+            android:layout_height="@dimen/dp_0_5"
             android:background="@color/gray"/>
 
 
@@ -98,6 +98,9 @@
             android:layout_gravity="bottom |end"
             android:layout_marginRight="@dimen/dp_20"
             android:layout_marginBottom="@dimen/dp_50"
-            android:onClick="@{onClickListener}"/>
+            android:onClick="@{onClickListener}"
+            android:src="@mipmap/add"
+            app:backgroundTint="@color/blue"
+            />
     </FrameLayout>
 </layout>

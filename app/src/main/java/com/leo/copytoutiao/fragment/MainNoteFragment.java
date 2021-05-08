@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.leo.copytoutiao.R;
@@ -22,6 +23,7 @@ import com.leo.copytoutiao.activity.FolderActivity;
 import com.leo.copytoutiao.activity.SearchActivity;
 import com.leo.copytoutiao.databinding.FragmentMainNoteBinding;
 import com.leo.copytoutiao.databinding.FragmentNotesBinding;
+import com.leo.copytoutiao.model.bean.FolderBean;
 import com.leo.copytoutiao.model.bean.NoteBean;
 import com.leo.copytoutiao.model.repository.FolderRepository;
 import com.leo.copytoutiao.view.adapter.BaseFragmentAdapter;
@@ -39,7 +41,6 @@ import io.reactivex.internal.operators.observable.ObservableElementAt;
 public class MainNoteFragment extends BaseFragment implements View.OnClickListener {
     private FragmentMainNoteBinding mBinding;
     private NoteViewModel mViewModel;
-    private ArrayList<String> mTitles = new ArrayList<>();
     private List<Fragment> fragments;
     private BaseFragmentAdapter adapter;
 
@@ -52,11 +53,8 @@ public class MainNoteFragment extends BaseFragment implements View.OnClickListen
                         .getApplication()))
                 .get(NoteViewModel.class);
         mBinding.setOnClickListener(this);
-        mTitles.add("全部");
-        mTitles.add("工作");
-        mTitles.add("随机");
-        mTitles.add("待办");
         initView();
+        observe();
         return mBinding.getRoot();
     }
 
@@ -65,11 +63,17 @@ public class MainNoteFragment extends BaseFragment implements View.OnClickListen
     }
 
     public void initViewPager(){
+        List<String> title = new ArrayList<>();
+        if (mViewModel.getFolders().getValue() != null) {
+            for (FolderBean bean : mViewModel.getFolders().getValue()){
+                title.add(bean.getName());
+            }
+        }
         fragments = new ArrayList<>();
-        for (String kind : mTitles) {
+        for (String kind : title) {
             fragments.add(NotesFragment.getInstance(kind));
         }
-        adapter = new BaseFragmentAdapter(getChildFragmentManager(),mTitles.size(), mTitles,fragments);
+        adapter = new BaseFragmentAdapter(getChildFragmentManager(),title.size(), title,fragments);
         mBinding.viewpager.setAdapter(adapter);
         mBinding.tabLayout.setupWithViewPager(mBinding.viewpager);
     }
@@ -84,7 +88,7 @@ public class MainNoteFragment extends BaseFragment implements View.OnClickListen
         switch (v.getId()){
             case R.id.float_button:
                 int index = mBinding.viewpager.getCurrentItem();
-                String kind = index == 0 ? mTitles.get(1) : mTitles.get(index);
+                String kind = index == 0 ? adapter.getTitles().get(1) : adapter.getTitles().get(index);
                 EditActivity.startActivityForResult(this,kind);
                 break;
             case R.id.fold_manage:
@@ -103,6 +107,22 @@ public class MainNoteFragment extends BaseFragment implements View.OnClickListen
         }
     }
 
+    public void observe(){
+        mViewModel.getFolders().observe(this, new Observer<List<FolderBean>>() {
+            @Override
+            public void onChanged(List<FolderBean> folderBeans) {
+                adapter.getTitles().clear();
+                fragments.clear();
+                for (FolderBean bean : folderBeans){
+                    adapter.getTitles().add(bean.getName());
+                    fragments.add(NotesFragment.getInstance(bean.getName()));
+                }
+                adapter.notifyDataSetChanged();
+
+            }
+        });
+    }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -112,13 +132,13 @@ public class MainNoteFragment extends BaseFragment implements View.OnClickListen
                 List<String> removeFolders = data.getStringArrayListExtra("remove");
                 String addFolderName = data.getStringExtra("add");
                 for (String name : removeFolders){
-                    int index = mTitles.indexOf(name);
-                    mTitles.remove(name);
+                    int index = adapter.getTitles().indexOf(name);
+                    adapter.getTitles().remove(name);
                     fragments.remove(index);
                     mViewModel.deleteNoteByKind(name);
                 }
                 if (!TextUtils.isEmpty(addFolderName)){
-                    mTitles.add(addFolderName);
+                    adapter.getTitles().add(addFolderName);
                     fragments.add(NotesFragment.getInstance(addFolderName));
                 }
                 adapter.notifyDataSetChanged();

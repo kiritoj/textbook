@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.MutableLiveData;
 
+import com.leo.copytoutiao.model.bean.FolderBean;
 import com.leo.copytoutiao.model.bean.NoteBean;
 import com.leo.copytoutiao.model.repository.FolderRepository;
 import com.leo.copytoutiao.model.repository.LoginRepository;
@@ -21,16 +22,22 @@ public class NoteViewModel extends AndroidViewModel {
 
     private NoteRepository mNoteRep;
     private LoginRepository mLoginRep;
+    private FolderRepository mFolderRep;
     private MutableLiveData<String> mErrMsg;
     private HashMap<String,MutableLiveData<List<NoteBean>>> mNoteMap;
+    private MutableLiveData<List<FolderBean>> mFolders;
+    private MutableLiveData<List<NoteBean>> mAlarmNotes; //设置了提醒的笔记
 
 
     public NoteViewModel(@NonNull Application application) {
         super(application);
         mNoteRep = NoteRepository.getInstance(application.getApplicationContext());
-        mLoginRep = LoginRepository.getInstance();
+        mLoginRep = LoginRepository.getInstance(application.getApplicationContext());
+        mFolderRep = FolderRepository.getInstance(application.getApplicationContext());
         mNoteMap = new HashMap<>();
         mErrMsg = new MutableLiveData<>();
+        mFolders = new MutableLiveData<>();
+        mAlarmNotes = new MutableLiveData<>();
     }
 
     public void initListener(){
@@ -80,7 +87,7 @@ public class NoteViewModel extends AndroidViewModel {
     }
 
     public void deleteNoteByKind(String kind){
-        mNoteRep.deleteNoteByKind(mLoginRep.getCurrentUser().getUserId(), kind);
+        mNoteRep.deleteNoteByKind(mLoginRep.getCurrentUser().getName(), kind);
     }
 
     public void createNoteList(String kind){
@@ -118,5 +125,43 @@ public class NoteViewModel extends AndroidViewModel {
     @Override
     protected void onCleared() {
         super.onCleared();
+    }
+
+    public void queryAllFolders(){
+        mFolderRep.queryFolder(mLoginRep.getCurrentUser().getName(), new BaseRepository.LoadListener<FolderBean>() {
+            @Override
+            public void onSuccess(List<FolderBean> result) {
+                if (mFolders.getValue() == null || !mFolders.getValue().equals(result)){
+                    mFolders.setValue(result);
+                }
+            }
+
+            @Override
+            public void onFailed(String errMsg) {
+
+            }
+        });
+    }
+
+    public void queryAlarmNotes(){
+        mNoteRep.queryAlarmNotes(mLoginRep.getCurrentUser(), new BaseRepository.LoadListener<NoteBean>() {
+            @Override
+            public void onSuccess(List<NoteBean> result) {
+                mAlarmNotes.setValue(result);
+            }
+
+            @Override
+            public void onFailed(String errMsg) {
+                mAlarmNotes.setValue(null);
+            }
+        });
+    }
+
+    public MutableLiveData<List<FolderBean>> getFolders() {
+        return mFolders;
+    }
+
+    public MutableLiveData<List<NoteBean>> getmAlarmNotes() {
+        return mAlarmNotes;
     }
 }

@@ -24,7 +24,7 @@ public class SearchViewModel extends AndroidViewModel {
         super(application);
         mNotes = new MutableLiveData<>();
         mNoteRep = NoteRepository.getInstance(application.getApplicationContext());
-        mLoginRep = LoginRepository.getInstance();
+        mLoginRep = LoginRepository.getInstance(application.getApplicationContext());
         mErrMsg = new MutableLiveData<>();
     }
 

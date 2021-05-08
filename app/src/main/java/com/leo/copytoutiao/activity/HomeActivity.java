@@ -1,26 +1,35 @@
 package com.leo.copytoutiao.activity;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.widget.RadioGroup;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.leo.copytoutiao.R;
 import com.leo.copytoutiao.databinding.ActivityHomeBinding;
+import com.leo.copytoutiao.fragment.AlarmFragment;
 import com.leo.copytoutiao.fragment.MainNoteFragment;
 import com.leo.copytoutiao.fragment.UserFragment;
 import com.leo.copytoutiao.service.AlarmService;
 import com.leo.copytoutiao.view.adapter.BaseFragmentAdapter;
 import com.leo.copytoutiao.viewmodel.NoteViewModel;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.List;
+
+import cn.leancloud.AVUser;
 
 public class HomeActivity extends AppCompatActivity {
     ActivityHomeBinding mBinding;
@@ -33,6 +42,7 @@ public class HomeActivity extends AppCompatActivity {
         mViewModel = new ViewModelProvider(this, new ViewModelProvider.AndroidViewModelFactory(this.getApplication())).get(NoteViewModel.class);
         //在activity中预拉取数据，fragment直接使用
         mViewModel.queryNotes();
+        mViewModel.queryAllFolders();
         Intent intent = new Intent(HomeActivity.this, AlarmService.class);
         startService(intent);
         initViews();
@@ -47,33 +57,38 @@ public class HomeActivity extends AppCompatActivity {
         mBinding.viewpager.setScroll(false);
         List<Fragment> fragments = new ArrayList<>();
         fragments.add(new MainNoteFragment());
+        fragments.add(new AlarmFragment());
         fragments.add(new UserFragment());
-        BaseFragmentAdapter adapter = new BaseFragmentAdapter(getSupportFragmentManager(), 2,null,fragments);
+        BaseFragmentAdapter adapter = new BaseFragmentAdapter(getSupportFragmentManager(), 3,null,fragments);
         mBinding.viewpager.setAdapter(adapter);
     }
 
 
 
     public void initListener(){
-        mBinding.radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+        mBinding.nav.setItemIconTintList(null);
+        mBinding.nav.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                switch (checkedId){
-                    case R.id.r_button_1:
+            public boolean onNavigationItemSelected(@NonNull @NotNull MenuItem menuItem) {
+                switch (menuItem.getItemId()){
+                    case R.id.navigation_home:
                         mBinding.viewpager.setCurrentItem(0);
                         break;
-                    case R.id.r_button_2:
-                        //mBinding.viewpager.setCurrentItem(1);
-                        Log.d("sakura","选中中间");
-                        break;
-                    case R.id.r_button_3:
+                    case R.id.navigation_alarm:
                         mBinding.viewpager.setCurrentItem(1);
                         break;
-                    default:
+                    case R.id.navigation_mine:
+                        mBinding.viewpager.setCurrentItem(2);
                         break;
                 }
+                return true;
             }
         });
+    }
+
+    public static void startActivity(Context context){
+        Intent intent = new Intent(context, HomeActivity.class);
+        context.startActivity(intent);
     }
 
 }

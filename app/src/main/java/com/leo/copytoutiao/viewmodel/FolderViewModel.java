@@ -26,14 +26,24 @@ public class FolderViewModel extends AndroidViewModel {
     public FolderViewModel(@NonNull Application application) {
         super(application);
         mFolderRep = FolderRepository.getInstance(application.getApplicationContext());
-        mLoginRep = LoginRepository.getInstance();
+        mLoginRep = LoginRepository.getInstance(application.getApplicationContext());
         mFolders = new MutableLiveData<>();
         mErrMsg = new MutableLiveData<>();
-        initListener();
     }
 
-    public void initListener(){
-        mFolderRep.setListener(new BaseRepository.LoadListener<FolderBean>() {
+    public void addFolder(String kind){
+        FolderBean bean = new FolderBean(mLoginRep.getCurrentUser().getName(),kind);
+        if (mFolders.getValue() == null || !mFolders.getValue().contains(bean)){
+            mFolderRep.insertFolder(bean);
+        }
+        if (mFolders.getValue() == null){
+            mFolders.setValue(new ArrayList<>());
+        }
+        mFolders.getValue().add(bean);
+    }
+
+    public void queryFolder(String username){
+        mFolderRep.queryFolder(username, new BaseRepository.LoadListener<FolderBean>() {
             @Override
             public void onSuccess(List<FolderBean> result) {
                 if (mFolders.getValue() == null || !mFolders.getValue().equals(result)){
@@ -48,23 +58,8 @@ public class FolderViewModel extends AndroidViewModel {
         });
     }
 
-    public void addFolder(String kind){
-        FolderBean bean = new FolderBean(mLoginRep.getCurrentUser().getUserId(),kind);
-        if (mFolders.getValue() == null || !mFolders.getValue().contains(bean)){
-            mFolderRep.insertFolder(bean);
-        }
-        if (mFolders.getValue() == null){
-            mFolders.setValue(new ArrayList<>());
-        }
-        mFolders.getValue().add(bean);
-    }
-
-    public void queryFolder(int userId){
-        mFolderRep.queryFolder(userId);
-    }
-
     public void deleteFolder(FolderBean bean){
-        mFolderRep.deleteFolder(bean.getUserId(),bean.getName());
+        mFolderRep.deleteFolder(bean.getUsername(),bean.getName());
     }
 
 

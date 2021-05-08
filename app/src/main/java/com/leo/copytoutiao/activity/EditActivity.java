@@ -109,7 +109,7 @@ public class EditActivity extends BaseActivity implements View.OnClickListener {
     }
 
     public static void startActivityForResult(Fragment fragment, String kind){
-        NoteBean note = new NoteBean(null, null, null, kind, 0, LoginRepository.getInstance().getCurrentUser(), 0);
+        NoteBean note = new NoteBean(null, null, null, kind, 0, LoginRepository.getInstance(fragment.getActivity().getApplicationContext()).getCurrentUser(), 0);
         Intent intent = new Intent(fragment.getContext(), EditActivity.class);
         intent.putExtra("note", note);
         fragment.startActivityForResult(intent,CREATE_NOTE);
@@ -617,7 +617,6 @@ public class EditActivity extends BaseActivity implements View.OnClickListener {
 
     public void save() {
         long time = Utils.getCurrentTime();
-        int userId = mNote.getUserBean().getUserId();
         //更新相关属性
         mNote.setTitle(TextUtils.isEmpty(binding.editName.getText().toString()) ?
                 "无标题笔记" : binding.editName.getText().toString());

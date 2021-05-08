@@ -76,7 +76,6 @@ public class NotesFragment extends BaseFragment {
         List<NoteBean> noteBeans = new ArrayList<>();
         if (mViewModel.getmNoteMap().containsKey(mKind) && mViewModel.getmNoteMap().get(mKind).getValue() != null) {
             noteBeans.addAll(mViewModel.getmNoteMap().get(mKind).getValue());
-
         }
         mAdapter = new NotesRecyclerAdapter(noteBeans, R.layout.item_note_text, R.layout.item_note_text_pic);
         mAdapter.setOnClickListener((bean, position) -> {

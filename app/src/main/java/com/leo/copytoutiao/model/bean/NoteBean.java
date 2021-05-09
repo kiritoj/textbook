@@ -1,5 +1,6 @@
 package com.leo.copytoutiao.model.bean;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.io.Serializable;
@@ -19,7 +20,7 @@ public class NoteBean implements Serializable {
     private final UserBean userBean;
     private long alarmTime;
 
-    public NoteBean(String title, String content, String url, String kind, long time, UserBean userBean, long alarmTime){
+    public NoteBean(String title, String content, String url, String kind, long time, UserBean userBean, long alarmTime, String id){
         this.title = title ;
         this.content = content;
         this.url = url;
@@ -27,7 +28,7 @@ public class NoteBean implements Serializable {
         this.time = time;
         this.userBean = userBean;
         this.alarmTime = alarmTime;
-        id = UUID.randomUUID().toString();
+        this.id = id;
 
     }
 
@@ -79,9 +80,7 @@ public class NoteBean implements Serializable {
         return id;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
+
 
     public long getAlarmTime() {
         return alarmTime;
@@ -102,4 +101,12 @@ public class NoteBean implements Serializable {
 //        NoteBean bean = (NoteBean)obj;
 //        return id == bean.id;
 //    }
+
+
+    @NonNull
+    @Override
+    public String toString() {
+        String s = "[" + id + "," + title + "," + content + "," + url + "," + kind + "," + time + "," + alarmTime;
+        return s;
+    }
 }

@@ -68,6 +68,7 @@
                 android:layout_weight="1"
                 app:tabSelectedTextColor="@color/blue"
                 app:tabIndicatorColor="@color/blue"
+                app:tabMode="scrollable"
                 >
             </com.google.android.material.tabs.TabLayout>
             <ImageView

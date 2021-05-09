@@ -100,4 +100,8 @@ public class NotesRecyclerAdapter extends BaseRecyclerAdapter<NoteBean> {
         }
         return mLayoutIds[0];
     }
+
+    public OnItemDeleteListener getdListener() {
+        return dListener;
+    }
 }

@@ -34,7 +34,7 @@ public class RegisterViewModel extends AndroidViewModel {
                 isRegisterIng.setValue(false);
                 registerResult.setValue("OK");
                 //注册成功后初始化本地数据库和远程数据库，添加默认的分类
-                String[] folders = {"全部", "随记","工作"};
+                String[] folders = {"随记","工作"};
                 mFolderRep.insertFolders(user.getUsername(), folders);
             }
 

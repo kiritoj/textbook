@@ -78,20 +78,14 @@
         android:orientation="horizontal"
         android:visibility="gone">
 
-        <Button
-            android:id="@+id/delete"
-            android:layout_width="@dimen/dp_50"
-            android:layout_height="match_parent"
-            android:background="@color/red"
-            android:text="删除"
-            android:textColor="@color/white" />
+
 
         <Button
             android:id="@+id/cancel"
             android:layout_width="@dimen/dp_50"
             android:layout_height="match_parent"
             android:background="@drawable/cancel_button_cor"
-            android:text="取消"
+            android:text="取消提醒"
             android:textColor="@color/white" />
     </LinearLayout>
 </FrameLayout>

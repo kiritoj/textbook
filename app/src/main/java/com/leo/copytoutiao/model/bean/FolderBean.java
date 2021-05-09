@@ -1,5 +1,6 @@
 package com.leo.copytoutiao.model.bean;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 public class FolderBean {
@@ -34,5 +35,11 @@ public class FolderBean {
         }
         FolderBean bean = (FolderBean) obj;
         return username.equals(bean.username)  && name.equals(bean.name);
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return "[" + username + "," + name + "]";
     }
 }

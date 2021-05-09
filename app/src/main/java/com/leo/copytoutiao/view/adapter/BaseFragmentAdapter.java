@@ -56,4 +56,15 @@ public class BaseFragmentAdapter extends FragmentPagerAdapter {
     public List<String> getTitles() {
         return mTitles;
     }
+
+
+    @Override
+    public int getItemPosition(Object object)   {
+        //删除某个碎片后，notifydatachange后，还会残留页面内容
+        if ( mCount > 0) {
+            mCount --;
+            return POSITION_NONE;
+        }
+        return super.getItemPosition(object);
+    }
 }

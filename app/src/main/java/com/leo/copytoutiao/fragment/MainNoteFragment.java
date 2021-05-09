@@ -52,6 +52,7 @@ public class MainNoteFragment extends BaseFragment implements View.OnClickListen
                 new ViewModelProvider.AndroidViewModelFactory(getActivity()
                         .getApplication()))
                 .get(NoteViewModel.class);
+        mViewModel.queryAllFolders();
         mBinding.setOnClickListener(this);
         initView();
         observe();
@@ -65,6 +66,8 @@ public class MainNoteFragment extends BaseFragment implements View.OnClickListen
     public void initViewPager(){
         List<String> title = new ArrayList<>();
         if (mViewModel.getFolders().getValue() != null) {
+            //手动添加一个全部分类，这个分类并存在local和remote数据中
+            title.add("全部");
             for (FolderBean bean : mViewModel.getFolders().getValue()){
                 title.add(bean.getName());
             }
@@ -88,6 +91,7 @@ public class MainNoteFragment extends BaseFragment implements View.OnClickListen
         switch (v.getId()){
             case R.id.float_button:
                 int index = mBinding.viewpager.getCurrentItem();
+                //第一个分类永远是全部，默认新笔记是第二个分类
                 String kind = index == 0 ? adapter.getTitles().get(1) : adapter.getTitles().get(index);
                 EditActivity.startActivityForResult(this,kind);
                 break;
@@ -113,12 +117,13 @@ public class MainNoteFragment extends BaseFragment implements View.OnClickListen
             public void onChanged(List<FolderBean> folderBeans) {
                 adapter.getTitles().clear();
                 fragments.clear();
+                adapter.getTitles().add("全部");
+                fragments.add(NotesFragment.getInstance("全部"));
                 for (FolderBean bean : folderBeans){
                     adapter.getTitles().add(bean.getName());
                     fragments.add(NotesFragment.getInstance(bean.getName()));
                 }
                 adapter.notifyDataSetChanged();
-
             }
         });
     }

@@ -5,10 +5,14 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import androidx.annotation.LongDef;
+
 import com.leo.copytoutiao.activity.EditActivity;
 import com.leo.copytoutiao.model.bean.FolderBean;
 import com.leo.copytoutiao.model.db.DataBaseHelper;
 import com.taoke.base.BaseRepository;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +20,8 @@ import java.util.List;
 
 import cn.leancloud.AVObject;
 import cn.leancloud.AVQuery;
+import cn.leancloud.AVUser;
+import cn.leancloud.types.AVNull;
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 
@@ -123,13 +129,8 @@ public class FolderRepository extends BaseRepository<FolderBean> {
      * @param names
      */
     public void insertFoldersToLocal(String username, String[] names) {
-        if (database != null) {
-            database.beginTransaction();
-            for (String folderName : names) {
-                database.execSQL("insert into folder values(?, ?)",
-                        new String[]{username, folderName});
-            }
-            database.endTransaction();
+        for (String folderName : names) {
+            insertFolderToLocal(username, folderName);
         }
     }
 
@@ -155,7 +156,7 @@ public class FolderRepository extends BaseRepository<FolderBean> {
     }
 
     /**
-     * 删除某条笔记，本地&remote
+     * 删除某条分类，本地&remote
      *
      * @param username
      * @param name
@@ -193,10 +194,32 @@ public class FolderRepository extends BaseRepository<FolderBean> {
             }
 
             public void onNext(AVObject folder) {
-                folder.deleteInBackground();
+                //真正执行Remote删除,踩坑需要subscrible才能删除成功
+                folder.deleteInBackground().subscribe(new Observer<AVNull>() {
+                    @Override
+                    public void onSubscribe(@NotNull Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(@NotNull AVNull avNull) {
+                        Log.d(TAG,"remote删除文件夹成功");
+                    }
+
+                    @Override
+                    public void onError(@NotNull Throwable e) {
+                        Log.d(TAG,"remote删除文件夹失败：" + e.getMessage());
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
             }
 
             public void onError(Throwable throwable) {
+                Log.d(TAG,"remote查询需要删除的分类失败");
             }
 
             public void onComplete() {
@@ -218,13 +241,13 @@ public class FolderRepository extends BaseRepository<FolderBean> {
             if (cursor.moveToFirst()) {
                 List<FolderBean> beanList = new ArrayList<>();
                 do {
-                    FolderBean bean = new FolderBean(cursor.getString(cursor.getColumnIndex("userid")),
+                    FolderBean bean = new FolderBean(cursor.getString(cursor.getColumnIndex("username")),
                             cursor.getString(cursor.getColumnIndex("name")));
                     beanList.add(bean);
-                    Log.d("sakura",bean.getName());
 
                 } while (cursor.moveToNext());
                 if (listener != null) {
+                    Log.d(TAG, "查询local文件夹：" + beanList.toString());
                     listener.onSuccess(beanList);
                 }
             } else {
@@ -253,6 +276,7 @@ public class FolderRepository extends BaseRepository<FolderBean> {
                     folderBeans.add(new FolderBean(avObject.getString("username"), avObject.getString("name")));
                 }
                 if (listener != null) {
+                    Log.d(TAG, "remote文件夹：" + folderBeans.toString());
                     listener.onSuccess(folderBeans);
                     //写回本地数据库
                     insertFoldersToLocal(username, folderBeans);

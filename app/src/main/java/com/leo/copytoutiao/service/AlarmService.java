@@ -16,6 +16,7 @@ import androidx.core.app.NotificationCompat;
 
 import com.leo.copytoutiao.R;
 import com.leo.copytoutiao.model.bean.NoteBean;
+import com.leo.copytoutiao.model.repository.NoteRepository;
 
 public class AlarmService extends Service {
 
@@ -42,7 +43,7 @@ public class AlarmService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-
+        String id = intent.getStringExtra("id");
         String title = intent.getStringExtra("title");
         String content = intent.getStringExtra("content");
         if (!TextUtils.isEmpty(title) || !TextUtils.isEmpty(content)) {
@@ -50,6 +51,8 @@ public class AlarmService extends Service {
                     title, content, R.mipmap.ic_launcher, new long[]{0,1000,500,1000});
             notificationManager.notify(2, notification);
         }
+        //闹钟触发后取消闹钟
+        NoteRepository.getInstance(this).setAlarmTime(id,0);
 
         return super.onStartCommand(intent, flags, startId);
     }

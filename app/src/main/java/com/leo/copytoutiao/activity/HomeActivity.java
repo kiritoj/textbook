@@ -42,7 +42,6 @@ public class HomeActivity extends AppCompatActivity {
         mViewModel = new ViewModelProvider(this, new ViewModelProvider.AndroidViewModelFactory(this.getApplication())).get(NoteViewModel.class);
         //在activity中预拉取数据，fragment直接使用
         mViewModel.queryNotes();
-        mViewModel.queryAllFolders();
         Intent intent = new Intent(HomeActivity.this, AlarmService.class);
         startService(intent);
         initViews();

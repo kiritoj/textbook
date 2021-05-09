@@ -50,7 +50,6 @@ public class NotesFragment extends BaseFragment {
                         .getApplication()))
                 .get(NoteViewModel.class);
         initView();
-        mViewModel.initListener();
         mViewModel.queryNoteByKind(mKind);
         initObserve();
         return mBinding.getRoot();
@@ -74,15 +73,16 @@ public class NotesFragment extends BaseFragment {
         setRefreshListener();
         //初始化RecyclerView
         List<NoteBean> noteBeans = new ArrayList<>();
-        if (mViewModel.getmNoteMap().containsKey(mKind) && mViewModel.getmNoteMap().get(mKind).getValue() != null) {
-            noteBeans.addAll(mViewModel.getmNoteMap().get(mKind).getValue());
-        }
+//        if (mViewModel.getmNoteMap().containsKey(mKind) && mViewModel.getmNoteMap().get(mKind).getValue() != null) {
+//            noteBeans.addAll(mViewModel.getmNoteMap().get(mKind).getValue());
+//        }
         mAdapter = new NotesRecyclerAdapter(noteBeans, R.layout.item_note_text, R.layout.item_note_text_pic);
         mAdapter.setOnClickListener((bean, position) -> {
             EditActivity.startActivityForResult(getParentFragment(), bean, position);
         });
         mAdapter.setDeleteListener((note, position) -> {
-            ((MainNoteFragment)getParentFragment()).deleteItem(note, position);
+            mViewModel.deleteNote(note);
+            ((MainNoteFragment) getParentFragment()).deleteItem(note, position);
         });
         mBinding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         mBinding.recyclerView.setAdapter(mAdapter);
@@ -92,9 +92,17 @@ public class NotesFragment extends BaseFragment {
         mViewModel.getmNoteMap().get(mKind).observe(this, new Observer<List<NoteBean>>() {
             @Override
             public void onChanged(List<NoteBean> noteBeans) {
+                if (mKind.equals("全部")) {
+                    if (noteBeans == null){
+                        Log.d("sakura", "null");
+                    }else {
+                        Log.d("sakura",noteBeans.size()+"");
+                    }
+                }
                 mAdapter.getData().clear();
                 mAdapter.getData().addAll(noteBeans);
                 mAdapter.notifyDataSetChanged();
+
             }
         });
     }
@@ -120,7 +128,7 @@ public class NotesFragment extends BaseFragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Log.d("sakura","result-->"+mKind);
+        Log.d("sakura", "result-->" + mKind);
         switch (requestCode) {
             case EditActivity.CREATE_NOTE:
                 if (data != null) {
@@ -186,12 +194,12 @@ public class NotesFragment extends BaseFragment {
                                 break;
                             }
                         }
-                        if (!isNew){
+                        if (!isNew) {
                             //从这个分类出去后，删除这一项
                             mAdapter.getData().remove(position);
                             mAdapter.notifyItemRemoved(position);
                             //更新item的position
-                            mAdapter.notifyItemRangeChanged(position,mAdapter.getData().size());
+                            mAdapter.notifyItemRangeChanged(position, mAdapter.getData().size());
                             mViewModel.deleteLocalNote(position, mKind);
                         }
                     }
@@ -201,31 +209,30 @@ public class NotesFragment extends BaseFragment {
 
     }
 
-    public void deleteItem(NoteBean note, int position){
+    public void deleteItem(NoteBean note, int position) {
         int index = -1;
-        if (mKind.equals(note.getKind())){
+        if (mKind.equals(note.getKind())) {
             index = position;
-        } else if (mKind.equals("全部")){
-            for (NoteBean bean : mAdapter.getData()){
-                if (bean.getId() == note.getId()){
+        } else if (mKind.equals("全部")) {
+            for (NoteBean bean : mAdapter.getData()) {
+                if (bean.getId() == note.getId()) {
                     index = position;
                     break;
                 }
             }
         }
-        if (index >= 0){
+        if (index >= 0) {
             mAdapter.getData().remove(index);
             mAdapter.notifyItemRemoved(index);
             //更新item的position
-            mAdapter.notifyItemRangeChanged(index,mAdapter.getData().size());
+            mAdapter.notifyItemRangeChanged(index, mAdapter.getData().size());
             mViewModel.deleteLocalNote(index, mKind);
-            mViewModel.deleteNote(note);
         }
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        Log.d("sakura",mKind);
+        Log.d("sakura", mKind);
     }
 }

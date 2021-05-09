@@ -41,9 +41,10 @@
                 android:textStyle="bold" />
 
             <ImageView
+                android:id="@+id/iv_folder"
                 android:layout_width="30dp"
                 android:layout_height="@dimen/dp_30"
-                android:src="@mipmap/icon_file"
+                android:src="@mipmap/icon_folder"
                 android:layout_marginRight="@dimen/dp_2"/>
             <TextView
                 android:id="@+id/folder_name"

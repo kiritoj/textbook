@@ -58,6 +58,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 import static com.yalantis.ucrop.UCrop.EXTRA_OUTPUT_URI;
 
@@ -109,7 +110,7 @@ public class EditActivity extends BaseActivity implements View.OnClickListener {
     }
 
     public static void startActivityForResult(Fragment fragment, String kind){
-        NoteBean note = new NoteBean(null, null, null, kind, 0, LoginRepository.getInstance(fragment.getActivity().getApplicationContext()).getCurrentUser(), 0);
+        NoteBean note = new NoteBean(null, null, null, kind, 0, LoginRepository.getInstance(fragment.getActivity().getApplicationContext()).getCurrentUser(), 0, UUID.randomUUID().toString());
         Intent intent = new Intent(fragment.getContext(), EditActivity.class);
         intent.putExtra("note", note);
         fragment.startActivityForResult(intent,CREATE_NOTE);
@@ -390,11 +391,14 @@ public class EditActivity extends BaseActivity implements View.OnClickListener {
                 //这里直接传序列化的Note对象，AlarmService取出来的null
                 //不知道是什么原因,先直接传title和content
                 //intent.putExtra("alarmNote", mNote);
+                intent.putExtra("id",mNote.getId());
                 intent.putExtra("title",mNote.getTitle());
-                intent.putExtra("content",mNote.getContent());
+                intent.putExtra("content",HtmlUtil.getTextFromHtml(mNote.getContent()));
                 PendingIntent pendingIntent = PendingIntent.getService(EditActivity.this,0, intent, 0);
                 util.addAlarm(calendar, pendingIntent);
                 Toast.makeText(EditActivity.this,"设置提醒成功",Toast.LENGTH_SHORT).show();
+                //更新数据库
+                mViewModel.saveAlarmTime(mNote, date.getTime());
             }
         }).setType(new boolean[]{true, true, true, true, true, false})
                 .setLabel(" 年", "月", "日", "时", "", "")
@@ -515,6 +519,7 @@ public class EditActivity extends BaseActivity implements View.OnClickListener {
             case R.id.iv_color_purple:
                 binding.richEditor.setTextColor(Color.PURPLE);
                 break;
+            case R.id.iv_folder:
             case R.id.folder_name:
                 FolderActivity.startActivityForResult(EditActivity.this, binding.folderName.getText().toString(), FolderActivity.REQUEST_CODE);
                 break;

@@ -41,7 +41,8 @@
         android:layout_marginTop="@dimen/dp_5"
         android:text="2021/4/12"
         android:textSize="@dimen/sp_13"
-        android:layout_marginBottom="@dimen/dp_10"/>
+        android:layout_marginBottom="@dimen/dp_10"
+        />
 
 </LinearLayout>
     <LinearLayout
@@ -52,18 +53,10 @@
         android:orientation="horizontal"
         android:visibility="gone">
         <Button
-            android:id="@+id/delete"
-            android:layout_width="@dimen/dp_50"
-            android:layout_height="match_parent"
-            android:text="删除"
-            android:textColor="@color/white"
-            android:background="@color/red"
-            />
-        <Button
             android:id="@+id/cancel"
             android:layout_width="@dimen/dp_50"
             android:layout_height="match_parent"
-            android:text="取消"
+            android:text="取消提醒"
             android:textColor="@color/white"
             android:background="@drawable/cancel_button_cor"
             />

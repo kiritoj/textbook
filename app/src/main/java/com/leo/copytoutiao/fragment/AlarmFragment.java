@@ -16,6 +16,7 @@ import com.leo.copytoutiao.activity.EditActivity;
 import com.leo.copytoutiao.databinding.FragmentAlarmBinding;
 import com.leo.copytoutiao.databinding.FragmentMainNoteBinding;
 import com.leo.copytoutiao.model.bean.NoteBean;
+import com.leo.copytoutiao.view.adapter.AlarmNotesRecyclerAdapter;
 import com.leo.copytoutiao.view.adapter.NotesRecyclerAdapter;
 import com.leo.copytoutiao.viewmodel.NoteViewModel;
 import com.taoke.base.BaseFragment;
@@ -27,7 +28,7 @@ import java.util.List;
 public class AlarmFragment extends BaseFragment{
     private FragmentAlarmBinding mBinding;
     private NoteViewModel mViewModel;
-    private NotesRecyclerAdapter mAdapter;
+    private AlarmNotesRecyclerAdapter mAdapter;
 
     @Nullable
     @Override
@@ -37,9 +38,9 @@ public class AlarmFragment extends BaseFragment{
                 new ViewModelProvider.AndroidViewModelFactory(getActivity()
                         .getApplication()))
                 .get(NoteViewModel.class);
+        mViewModel.queryAlarmNotes();
         initView();
         observe();
-        mViewModel.queryAlarmNotes();
         return mBinding.getRoot();
     }
 
@@ -50,13 +51,24 @@ public class AlarmFragment extends BaseFragment{
 
     public void initView(){
         List<NoteBean> noteBeans = new ArrayList<>();
-        mAdapter = new NotesRecyclerAdapter(noteBeans, R.layout.item_note_text, R.layout.item_note_text_pic);
+        mAdapter = new AlarmNotesRecyclerAdapter(noteBeans, R.layout.item_note_text_alarm, R.layout.item_note_text_pic_alarm);
 //      暂时不提供搜索删除
 //        mAdapter.setDeleteListener((note, position) -> {
 //            ((MainNoteFragment)getParentFragment()).deleteItem(note, position);
 //        });
         mAdapter.setOnClickListener((bean, position) -> {
             EditActivity.startActivityForResult(this, bean, position);
+        });
+        mAdapter.setDeleteListener(new NotesRecyclerAdapter.OnItemDeleteListener() {
+            @Override
+            public void deleteItem(NoteBean note, int position) {
+                //取消提醒
+                mAdapter.getData().remove(position);
+                mAdapter.notifyItemRemoved(position);
+                //更新item的position
+                mAdapter.notifyItemRangeChanged(position, mAdapter.getData().size());
+                mViewModel.deleteAlarmNote(note, position);
+            }
         });
         mBinding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         mBinding.recyclerView.setAdapter(mAdapter);
@@ -66,17 +78,23 @@ public class AlarmFragment extends BaseFragment{
         mViewModel.getmAlarmNotes().observe(this, new Observer<List<NoteBean>>() {
             @Override
             public void onChanged(List<NoteBean> noteBeans) {
-                if (noteBeans == null){
+                if (noteBeans == null || noteBeans.size() == 0){
                     mBinding.recyclerView.setVisibility(View.INVISIBLE);
-                    mBinding.recyclerView.setVisibility(View.VISIBLE);
+                    mBinding.empty.setVisibility(View.VISIBLE);
                 } else {
                     mBinding.recyclerView.setVisibility(View.VISIBLE);
                     mAdapter.getData().clear();
                     mAdapter.getData().addAll(noteBeans);
                     mAdapter.notifyDataSetChanged();
-                    mBinding.recyclerView.setVisibility(View.GONE);
+                    mBinding.empty.setVisibility(View.GONE);
                 }
             }
         });
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mViewModel.queryAlarmNotes();
     }
 }

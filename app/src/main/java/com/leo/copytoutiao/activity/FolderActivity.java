@@ -44,6 +44,7 @@ public class FolderActivity extends BaseActivity {
     private int type;
     private FolderRecyclerAdapter mAdapter;
     private ArrayList<String> removeFolders = new ArrayList<>();
+    private String mKind;
 
     public interface Type{
         int selectKind = 31;//选择分类
@@ -60,8 +61,9 @@ public class FolderActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         mBinding = DataBindingUtil.setContentView(this, R.layout.activity_folder);
         mViewModel = new ViewModelProvider(this, new ViewModelProvider.AndroidViewModelFactory(this.getApplication())).get(FolderViewModel.class);
-        //mViewModel.queryFolder(LoginRepository.getInstance().getCurrentUser().getUserId());
+        mViewModel.queryFolder(LoginRepository.getInstance(getApplicationContext()).getCurrentUser().getName());
         type = getIntent().getIntExtra(TYPE,Type.selectKind);
+        mKind = getIntent().getStringExtra(KIND);
         initView();
         initObserve();
         initToolBar(findViewById(R.id.toolbar), "笔记归属文件夹", true, -1);
@@ -88,13 +90,10 @@ public class FolderActivity extends BaseActivity {
 
     public void initView(){
         List<FolderBean> data = new ArrayList<>();
-        data.add(new FolderBean("qwe","工作"));
-        data.add(new FolderBean("qwe","随机"));
-        data.add(new FolderBean("qwe","待办"));
         if (mViewModel.getFolders().getValue() != null){
             data.addAll(mViewModel.getFolders().getValue());
         }
-        mAdapter = new FolderRecyclerAdapter("工作",data,R.layout.item_folder);
+        mAdapter = new FolderRecyclerAdapter(mKind,data,R.layout.item_folder);
         mAdapter.setOnClickListener((bean, position) -> {
                 Intent intent = new Intent();
                 intent.putExtra(SELECT_KIND,bean.getName());

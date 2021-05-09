@@ -20,6 +20,7 @@ public class FolderViewModel extends AndroidViewModel {
 
     private FolderRepository mFolderRep;
     private LoginRepository mLoginRep;
+    private NoteRepository mNoteRep;
     private MutableLiveData<List<FolderBean>> mFolders;
     private MutableLiveData<String> mErrMsg;
 
@@ -27,6 +28,7 @@ public class FolderViewModel extends AndroidViewModel {
         super(application);
         mFolderRep = FolderRepository.getInstance(application.getApplicationContext());
         mLoginRep = LoginRepository.getInstance(application.getApplicationContext());
+        mNoteRep = NoteRepository.getInstance(application.getApplicationContext());
         mFolders = new MutableLiveData<>();
         mErrMsg = new MutableLiveData<>();
     }
@@ -59,7 +61,10 @@ public class FolderViewModel extends AndroidViewModel {
     }
 
     public void deleteFolder(FolderBean bean){
+        //1.删除本地和remote的文件夹
         mFolderRep.deleteFolder(bean.getUsername(),bean.getName());
+        //2.删除本地和remote该文件夹内的笔记
+        mNoteRep.deleteNoteByKind(bean.getUsername(), bean.getName());
     }
 
 

@@ -140,6 +140,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
             if (s.equals("OK")){
                 //注册成功，跳转至首页
                 HomeActivity.startActivity(this);
+                finish();
             } else {
                 Toast.makeText(this, s, Toast.LENGTH_SHORT).show();
             }

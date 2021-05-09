@@ -3,6 +3,7 @@ package com.leo.copytoutiao.model.repository;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.sax.ElementListener;
 import android.util.Log;
 
 import com.leo.copytoutiao.model.bean.FolderBean;
@@ -11,12 +12,15 @@ import com.leo.copytoutiao.model.bean.UserBean;
 import com.leo.copytoutiao.model.db.DataBaseHelper;
 import com.taoke.base.BaseRepository;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 import cn.leancloud.AVObject;
 import cn.leancloud.AVQuery;
+import cn.leancloud.types.AVNull;
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 
@@ -24,7 +28,6 @@ public class NoteRepository extends BaseRepository<NoteBean> {
 
     private static volatile NoteRepository instance;
     private SQLiteDatabase database;
-    private QueryByKindListener queryListener;
     private static final String ALL = "全部";
     private static final String TAG = "NoteRepository";
 
@@ -33,9 +36,6 @@ public class NoteRepository extends BaseRepository<NoteBean> {
         void onFailed(String errMsg);
     }
 
-    public void setQueryListener(QueryByKindListener listener){
-        this.queryListener = listener;
-    }
 
     private NoteRepository(Context context){
         if (context != null) {
@@ -69,9 +69,8 @@ public class NoteRepository extends BaseRepository<NoteBean> {
      */
     public void insertNoteToLocal(NoteBean bean){
         if (database != null) {
-            String noteId = UUID.randomUUID().toString();
             database.execSQL("insert into note (id, title, content, url, kind, time,username,alarmtime) values (?,?,?,?,?,?,?,?)"
-                    , new String[]{noteId, bean.getTitle(), bean.getContent(), bean.getUrl(), bean.getKind(),
+                    , new String[]{bean.getId(), bean.getTitle(), bean.getContent(), bean.getUrl(), bean.getKind(),
                             String.valueOf(bean.getTime()),
                             String.valueOf(bean.getUserBean().getName()),
                             String.valueOf(bean.getAlarmTime())});
@@ -84,16 +83,15 @@ public class NoteRepository extends BaseRepository<NoteBean> {
      */
     public void insertNotesToLocal(List<NoteBean> noteBeans){
         if(database != null) {
-            database.beginTransaction();
+//            database.beginTransaction();
             for (NoteBean bean : noteBeans) {
-                String noteId = UUID.randomUUID().toString();
                 database.execSQL("insert into note (id, title, content, url, kind, time,username,alarmtime) values (?,?,?,?,?,?,?,?)"
-                        , new String[]{noteId, bean.getTitle(), bean.getContent(), bean.getUrl(), bean.getKind(),
+                        , new String[]{bean.getId(), bean.getTitle(), bean.getContent(), bean.getUrl(), bean.getKind(),
                                 String.valueOf(bean.getTime()),
                                 String.valueOf(bean.getUserBean().getName()),
                                 String.valueOf(bean.getAlarmTime())});
             }
-            database.endTransaction();
+//            database.endTransaction();
         }
     }
 
@@ -116,9 +114,11 @@ public class NoteRepository extends BaseRepository<NoteBean> {
             public void onSubscribe(Disposable disposable) {}
             public void onNext(AVObject todo) {
                 // 成功保存之后，执行其他逻辑
+                Log.d(TAG,"remote保存笔记成功");
             }
             public void onError(Throwable throwable) {
                 // 异常处理
+                Log.d(TAG,"remote插入笔记失败：" + throwable.getMessage());
             }
             public void onComplete() {}
         });
@@ -166,10 +166,24 @@ public class NoteRepository extends BaseRepository<NoteBean> {
     }
 
     /**
+     * 设置提醒时间
+     */
+    public void setAlarmTime(NoteBean bean, long time){
+        setAlarmTime(bean.getId(), time);
+    }
+
+    public void setAlarmTime(String id, long time){
+        if (database != null){
+            database.execSQL("update note set alarmtime = ? where id = ?"
+                    , new String[]{String.valueOf(time), id});
+        }
+    }
+
+    /**
      * 查询用户的全部笔记
      * @param user
      */
-    public void queryNotes(UserBean user) {
+    public void queryNotes(UserBean user , QueryByKindListener listener) {
         if (database != null) {
             Cursor cursor = database.rawQuery("select * from note where username = ?",
                     new String[]{user.getName()});
@@ -183,15 +197,18 @@ public class NoteRepository extends BaseRepository<NoteBean> {
                             cursor.getString(cursor.getColumnIndex("kind")),
                             cursor.getLong(cursor.getColumnIndex("time")),
                             user,
-                            cursor.getLong(cursor.getColumnIndex("alarmtime")));
+                            cursor.getLong(cursor.getColumnIndex("alarmtime")),
+                            cursor.getString(cursor.getColumnIndex("id")));
                     noteList.add(note);
                 } while (cursor.moveToNext());
-                if (queryListener != null){
-                    queryListener.onSuccess(noteList, ALL);
+                if (listener != null){
+                    Log.d(TAG,"local查询全部笔记：" + noteList.toString());
+                    listener.onSuccess(noteList, ALL);
+
                 }
             } else {
                 //数据库没有,尝试从远程获取
-                queryNotesFromRemote(user, null);
+                queryNotesFromRemote(user, "全部", listener);
             }
         }
     }
@@ -200,10 +217,11 @@ public class NoteRepository extends BaseRepository<NoteBean> {
      * 从远程查询用户的全部笔记
      * @param user
      */
-    public void queryNotesFromRemote(UserBean user, String kind){
+    public void queryNotesFromRemote(UserBean user, String kind, QueryByKindListener listener
+    ){
         AVQuery<AVObject> query = new AVQuery<>("Note");
         query.whereEqualTo("username", user.getName());
-        if (kind != null){
+        if (!kind.equals(ALL)){
             query.whereEqualTo("kind",kind);
         }
         query.findInBackground().subscribe(new Observer<List<AVObject>>() {
@@ -217,18 +235,21 @@ public class NoteRepository extends BaseRepository<NoteBean> {
                                 avObject.getString("kind"),
                                 avObject.getLong("time"),
                                 user,
-                                0
-                                ));
+                                0,
+                                avObject.getString("id")));
                 }
-                if (queryListener != null) {
-                    queryListener.onSuccess(noteBeans, ALL);
+                if (listener != null) {
+                    Log.d(TAG,kind+":remote查询全部笔记：" + noteBeans.toString());
+                    listener.onSuccess(noteBeans, kind);
                 }
                 //写回数据库
-                insertNotesToLocal(noteBeans);
+                if (!noteBeans.isEmpty())  {
+                    insertNotesToLocal(noteBeans);
+                }
             }
             public void onError(Throwable throwable) {
-                if (queryListener != null){
-                    queryListener.onFailed(throwable.getMessage());
+                if (listener != null){
+                    listener.onFailed(throwable.getMessage());
                     Log.d(TAG,"远程查询全部笔记出现错误："+throwable.getMessage());
                 }
             }
@@ -241,10 +262,10 @@ public class NoteRepository extends BaseRepository<NoteBean> {
      * @param user
      * @param kind
      */
-    public void queryNotesByKind(UserBean user, String kind){
+    public void queryNotesByKind(UserBean user, String kind, QueryByKindListener listener){
         if (ALL.equals(kind)){
             //查询全部笔记
-            queryNotes(user);
+            queryNotes(user, listener);
         } else if (database != null) {
             Cursor cursor = database.rawQuery("select * from note where username = ? and kind = ?",
                     new String[]{String.valueOf(user.getName()), kind});
@@ -258,16 +279,17 @@ public class NoteRepository extends BaseRepository<NoteBean> {
                             kind,
                             cursor.getLong(cursor.getColumnIndex("time")),
                             user,
-                            cursor.getLong(cursor.getColumnIndex("alarmtime")));
+                            cursor.getLong(cursor.getColumnIndex("alarmtime")),
+                            cursor.getString(cursor.getColumnIndex("id")));
                     noteList.add(note);
 
                 } while (cursor.moveToNext());
-                if (queryListener != null){
-                    queryListener.onSuccess(noteList, kind);
+                if (listener != null){
+                    listener.onSuccess(noteList, kind);
                 }
             } else {
                 //数据库没有
-                queryNotesFromRemote(user, kind);
+                queryNotesFromRemote(user, kind, listener);
             }
         }
     }
@@ -297,6 +319,7 @@ public class NoteRepository extends BaseRepository<NoteBean> {
      * @param bean
      */
     public void deleteNoteFromRemote(NoteBean bean){
+        Log.d(TAG,"deleteNoteFromRemote");
         AVQuery<AVObject> query = new AVQuery<>("Note");
         query.whereEqualTo("id", bean.getId());
         query.getFirstInBackground().subscribe(new Observer<AVObject>() {
@@ -304,10 +327,31 @@ public class NoteRepository extends BaseRepository<NoteBean> {
             }
 
             public void onNext(AVObject note) {
-                note.deleteInBackground();
+                Log.d(TAG,"remote寻找要删除的笔记成功");
+                note.deleteInBackground().subscribe(new Observer<AVNull>() {
+                    @Override
+                    public void onSubscribe(@NotNull Disposable d) {
+                    }
+
+                    @Override
+                    public void onNext(@NotNull AVNull avNull) {
+                        Log.d(TAG, "remote删除一条笔记成功");
+                    }
+
+                    @Override
+                    public void onError(@NotNull Throwable e) {
+                        Log.d(TAG, "remote删除一条笔记失败：" + e.getMessage());
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
             }
 
             public void onError(Throwable throwable) {
+                Log.d(TAG,"remote寻找要删除的笔记失败：" + throwable.getMessage());
             }
 
             public void onComplete() {
@@ -352,7 +396,27 @@ public class NoteRepository extends BaseRepository<NoteBean> {
             }
 
             public void onNext(List<AVObject> notes) {
-                AVObject.deleteAllInBackground(notes);
+                AVObject.deleteAllInBackground(notes).subscribe(new Observer<AVNull>() {
+                    @Override
+                    public void onSubscribe(@NotNull Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(@NotNull AVNull avNull) {
+                        Log.d(TAG,"remote删除文件夹相关笔记成功");
+                    }
+
+                    @Override
+                    public void onError(@NotNull Throwable e) {
+                        Log.d(TAG,"remote删除文件夹相关笔记失败" + e.getMessage());
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
             }
 
             public void onError(Throwable throwable) {
@@ -381,8 +445,8 @@ public class NoteRepository extends BaseRepository<NoteBean> {
                             cursor.getString(cursor.getColumnIndex("kind")),
                             cursor.getLong(cursor.getColumnIndex("time")),
                             user,
-                            cursor.getLong(cursor.getColumnIndex("alarmtime")));
-                    note.setId(cursor.getString(cursor.getColumnIndex("id")));
+                            cursor.getLong(cursor.getColumnIndex("alarmtime")),
+                            cursor.getString(cursor.getColumnIndex("id")));
                     list.add(note);
                 } while (cursor.moveToNext());
                 if (listener != null){
@@ -409,8 +473,8 @@ public class NoteRepository extends BaseRepository<NoteBean> {
                             cursor.getString(cursor.getColumnIndex("kind")),
                             cursor.getLong(cursor.getColumnIndex("time")),
                             user,
-                            cursor.getLong(cursor.getColumnIndex("alarmtime")));
-                    note.setId(cursor.getString(cursor.getColumnIndex("id")));
+                            cursor.getLong(cursor.getColumnIndex("alarmtime")),
+                            cursor.getString(cursor.getColumnIndex("id")));
                     list.add(note);
                 } while (cursor.moveToNext());
                 if (listener != null){

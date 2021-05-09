@@ -40,8 +40,39 @@ public class NoteViewModel extends AndroidViewModel {
         mAlarmNotes = new MutableLiveData<>();
     }
 
-    public void initListener(){
-        mNoteRep.setQueryListener(new NoteRepository.QueryByKindListener() {
+//    public void initListener(){
+//        mNoteRep.setQueryListener(new NoteRepository.QueryByKindListener() {
+//            @Override
+//            public void onSuccess(List<NoteBean> result, String kind) {
+//                MutableLiveData<List<NoteBean>> data = mNoteMap.get(kind);
+//                String s = NoteViewModel.this.toString();
+//                //按创建时间倒叙排列
+//                Collections.reverse(result);
+//                if (data.getValue() == null || !data.getValue().equals(result)){
+//                    data.setValue(result);
+//                }
+//            }
+//
+//            @Override
+//            public void onFailed(String errMsg) {
+//                mErrMsg.setValue(errMsg);
+//            }
+//        });
+//    }
+
+    public void addNote(NoteBean note){
+        mNoteRep.insertNote(note);
+    }
+
+    public void updateNode(NoteBean note){
+        mNoteRep.updateNote(note);
+    }
+
+    public void queryNotes(){
+        if (!mNoteMap.containsKey("全部")){
+            mNoteMap.put("全部", new MutableLiveData<>());
+        }
+        mNoteRep.queryNotes(mLoginRep.getCurrentUser(),new NoteRepository.QueryByKindListener() {
             @Override
             public void onSuccess(List<NoteBean> result, String kind) {
                 MutableLiveData<List<NoteBean>> data = mNoteMap.get(kind);
@@ -60,26 +91,27 @@ public class NoteViewModel extends AndroidViewModel {
         });
     }
 
-    public void addNote(NoteBean note){
-        mNoteRep.insertNote(note);
-    }
-
-    public void updateNode(NoteBean note){
-        mNoteRep.updateNote(note);
-    }
-
-    public void queryNotes(){
-        if (!mNoteMap.containsKey("全部")){
-            mNoteMap.put("全部", new MutableLiveData<>());
-        }
-        mNoteRep.queryNotes(mLoginRep.getCurrentUser());
-    }
-
     public void queryNoteByKind(String kind){
         if (!mNoteMap.containsKey(kind)){
             mNoteMap.put(kind, new MutableLiveData<>());
         }
-        mNoteRep.queryNotesByKind(mLoginRep.getCurrentUser(), kind);
+        mNoteRep.queryNotesByKind(mLoginRep.getCurrentUser(), kind, new NoteRepository.QueryByKindListener() {
+            @Override
+            public void onSuccess(List<NoteBean> result, String kind) {
+                MutableLiveData<List<NoteBean>> data = mNoteMap.get(kind);
+                String s = NoteViewModel.this.toString();
+                //按创建时间倒叙排列
+                Collections.reverse(result);
+                if (data.getValue() == null || !data.getValue().equals(result)){
+                    data.setValue(result);
+                }
+            }
+
+            @Override
+            public void onFailed(String errMsg) {
+                mErrMsg.setValue(errMsg);
+            }
+        });
     }
 
     public void deleteNote(NoteBean note){
@@ -111,6 +143,11 @@ public class NoteViewModel extends AndroidViewModel {
 
     public void deleteLocalNote(int index, String kind){
         mNoteMap.get(kind).getValue().remove(index);
+    }
+
+    public void deleteAlarmNote(NoteBean bean, int index){
+        mAlarmNotes.getValue().remove(index);
+        mNoteRep.setAlarmTime(bean,0);
     }
 //
 //    public MutableLiveData<List<NoteBean>> getNoteList() {
@@ -147,6 +184,7 @@ public class NoteViewModel extends AndroidViewModel {
         mNoteRep.queryAlarmNotes(mLoginRep.getCurrentUser(), new BaseRepository.LoadListener<NoteBean>() {
             @Override
             public void onSuccess(List<NoteBean> result) {
+                Collections.reverse(result);
                 mAlarmNotes.setValue(result);
             }
 
@@ -155,6 +193,11 @@ public class NoteViewModel extends AndroidViewModel {
                 mAlarmNotes.setValue(null);
             }
         });
+    }
+
+    //保存闹钟时间
+    public void saveAlarmTime(NoteBean bean, long time){
+        mNoteRep.setAlarmTime(bean, time);
     }
 
     public MutableLiveData<List<FolderBean>> getFolders() {

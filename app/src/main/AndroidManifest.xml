@@ -21,6 +21,14 @@
         android:screenOrientation="portrait"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".activity.BootActivity"
+            android:theme="@style/NoTitleFullscreen">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".activity.RegisterActivity"
             android:theme="@style/AppTheme.NoActionBar" />
@@ -29,11 +37,6 @@
             android:label="备忘录"
             android:launchMode="singleTask"
             android:theme="@style/AppTheme.NoActionBar">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity
             android:name=".activity.SearchActivity"
@@ -47,7 +50,7 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".activity.HomeActivity"
-            android:theme="@style/NO_ACTIONBAR"></activity>
+            android:theme="@style/NO_ACTIONBAR" />
         <activity
             android:name=".MainActivity"
             android:windowSoftInputMode="stateAlwaysHidden" />

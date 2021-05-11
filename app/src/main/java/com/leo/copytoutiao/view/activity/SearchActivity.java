@@ -1,9 +1,7 @@
-package com.leo.copytoutiao.activity;
+package com.leo.copytoutiao.view.activity;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -13,17 +11,13 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.widget.SearchView;
 
 import com.leo.copytoutiao.R;
 import com.leo.copytoutiao.databinding.ActivitySearchBinding;
-import com.leo.copytoutiao.fragment.MainNoteFragment;
 import com.leo.copytoutiao.model.bean.NoteBean;
 import com.leo.copytoutiao.view.adapter.NotesRecyclerAdapter;
-import com.leo.copytoutiao.viewmodel.FolderViewModel;
 import com.leo.copytoutiao.viewmodel.SearchViewModel;
 import com.taoke.base.BaseActivity;
-import com.taoke.base.BaseRecyclerAdapter;
 
 import java.util.ArrayList;
 import java.util.List;

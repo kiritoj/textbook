@@ -1,4 +1,4 @@
-package com.leo.copytoutiao.activity;
+package com.leo.copytoutiao.view.activity;
 
 import android.os.Bundle;
 
@@ -13,7 +13,6 @@ import android.view.View;
 import android.widget.ImageView;
 
 import com.leo.copytoutiao.R;
-import com.lzy.imagepicker.loader.GlideImageLoader;
 
 import java.io.File;
 

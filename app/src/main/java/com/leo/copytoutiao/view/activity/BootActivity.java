@@ -1,4 +1,4 @@
-package com.leo.copytoutiao.activity;
+package com.leo.copytoutiao.view.activity;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -26,6 +26,6 @@ public class BootActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_boot);
-        handler.sendEmptyMessageDelayed(1,2000);
+        handler.sendEmptyMessageDelayed(1,1500);
     }
 }

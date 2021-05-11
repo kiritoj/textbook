@@ -1,8 +1,6 @@
-package com.leo.copytoutiao.activity;
+package com.leo.copytoutiao.view.activity;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.content.Context;
@@ -20,7 +18,6 @@ import android.widget.Toast;
 import com.leo.copytoutiao.R;
 
 import com.leo.copytoutiao.databinding.ActivityRegisterBinding;
-import com.leo.copytoutiao.viewmodel.FolderViewModel;
 import com.leo.copytoutiao.viewmodel.RegisterViewModel;
 import com.taoke.base.BaseActivity;
 

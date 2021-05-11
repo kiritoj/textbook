@@ -1,4 +1,4 @@
-package com.leo.copytoutiao.fragment;
+package com.leo.copytoutiao.view.fragment;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -10,12 +10,11 @@ import androidx.annotation.Nullable;
 import androidx.databinding.DataBindingUtil;
 
 import com.leo.copytoutiao.R;
-import com.leo.copytoutiao.activity.LoginActivity;
+import com.leo.copytoutiao.view.activity.LoginActivity;
 import com.leo.copytoutiao.databinding.FragmentUserBinding;
 import com.leo.copytoutiao.model.repository.LoginRepository;
 import com.taoke.base.BaseFragment;
 
-import cn.leancloud.AVCloud;
 import cn.leancloud.AVUser;
 
 /**

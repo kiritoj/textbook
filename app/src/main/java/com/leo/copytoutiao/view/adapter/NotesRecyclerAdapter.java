@@ -1,13 +1,9 @@
 package com.leo.copytoutiao.view.adapter;
 
-import android.content.Context;
 import android.text.TextUtils;
 import android.view.View;
 
-import androidx.fragment.app.Fragment;
-
 import com.leo.copytoutiao.R;
-import com.leo.copytoutiao.activity.EditActivity;
 import com.leo.copytoutiao.model.bean.NoteBean;
 import com.leo.copytoutiao.utils.HtmlUtil;
 import com.leo.copytoutiao.utils.Utils;

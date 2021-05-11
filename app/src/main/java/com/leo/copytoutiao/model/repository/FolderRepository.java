@@ -5,9 +5,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
-import androidx.annotation.LongDef;
-
-import com.leo.copytoutiao.activity.EditActivity;
 import com.leo.copytoutiao.model.bean.FolderBean;
 import com.leo.copytoutiao.model.db.DataBaseHelper;
 import com.taoke.base.BaseRepository;
@@ -20,7 +17,6 @@ import java.util.List;
 
 import cn.leancloud.AVObject;
 import cn.leancloud.AVQuery;
-import cn.leancloud.AVUser;
 import cn.leancloud.types.AVNull;
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;

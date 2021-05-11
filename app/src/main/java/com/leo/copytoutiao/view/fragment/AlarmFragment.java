@@ -1,4 +1,4 @@
-package com.leo.copytoutiao.fragment;
+package com.leo.copytoutiao.view.fragment;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -12,9 +12,8 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-import com.leo.copytoutiao.activity.EditActivity;
+import com.leo.copytoutiao.view.activity.EditActivity;
 import com.leo.copytoutiao.databinding.FragmentAlarmBinding;
-import com.leo.copytoutiao.databinding.FragmentMainNoteBinding;
 import com.leo.copytoutiao.model.bean.NoteBean;
 import com.leo.copytoutiao.view.adapter.AlarmNotesRecyclerAdapter;
 import com.leo.copytoutiao.view.adapter.NotesRecyclerAdapter;

@@ -1,4 +1,4 @@
-package com.leo.copytoutiao.activity;
+package com.leo.copytoutiao.view.activity;
 
 import android.annotation.TargetApi;
 import android.content.Intent;

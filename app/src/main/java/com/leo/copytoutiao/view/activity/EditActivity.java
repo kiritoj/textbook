@@ -1,13 +1,11 @@
-package com.leo.copytoutiao.activity;
+package com.leo.copytoutiao.view.activity;
 
 import android.Manifest;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -35,7 +33,6 @@ import com.bigkoo.pickerview.TimePickerView;
 import com.leo.copytoutiao.R;
 import com.leo.copytoutiao.databinding.ActivityPublishBinding;
 import com.leo.copytoutiao.model.bean.NoteBean;
-import com.leo.copytoutiao.model.db.DataBaseHelper;
 import com.leo.copytoutiao.model.repository.LoginRepository;
 import com.leo.copytoutiao.service.AlarmService;
 import com.leo.copytoutiao.utils.AlarmManagerUtil;

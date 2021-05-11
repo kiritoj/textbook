@@ -1,7 +1,6 @@
-package com.leo.copytoutiao.activity;
+package com.leo.copytoutiao.view.activity;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
@@ -10,16 +9,14 @@ import androidx.lifecycle.ViewModelProvider;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
-import android.widget.RadioGroup;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.leo.copytoutiao.R;
 import com.leo.copytoutiao.databinding.ActivityHomeBinding;
-import com.leo.copytoutiao.fragment.AlarmFragment;
-import com.leo.copytoutiao.fragment.MainNoteFragment;
-import com.leo.copytoutiao.fragment.UserFragment;
+import com.leo.copytoutiao.view.fragment.AlarmFragment;
+import com.leo.copytoutiao.view.fragment.MainNoteFragment;
+import com.leo.copytoutiao.view.fragment.UserFragment;
 import com.leo.copytoutiao.service.AlarmService;
 import com.leo.copytoutiao.view.adapter.BaseFragmentAdapter;
 import com.leo.copytoutiao.viewmodel.NoteViewModel;
@@ -28,8 +25,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import cn.leancloud.AVUser;
 
 public class HomeActivity extends AppCompatActivity {
     ActivityHomeBinding mBinding;

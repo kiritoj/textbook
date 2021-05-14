@@ -3,9 +3,11 @@ package com.leo.copytoutiao.view.activity;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Picture;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -17,6 +19,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.webkit.WebView;
 import android.widget.PopupWindow;
 import android.widget.SeekBar;
 import android.widget.Toast;
@@ -51,11 +54,18 @@ import com.taoke.base.BaseActivity;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 import com.yalantis.ucrop.UCropActivity;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+
+import cn.leancloud.AVFile;
+import io.reactivex.Observer;
+import io.reactivex.disposables.Disposable;
 
 import static com.yalantis.ucrop.UCrop.EXTRA_OUTPUT_URI;
 
@@ -69,6 +79,7 @@ public class EditActivity extends BaseActivity implements View.OnClickListener {
 
     private CommonPopupWindow popupWindow; //编辑图片的pop
     private String currentUrl = "";
+    private static final String TAG = "EditActivity";
 
     //编辑item按下后，图标选择。由于框架无法及时回调造成的
     private boolean mIsItalicSelect = false;
@@ -80,6 +91,7 @@ public class EditActivity extends BaseActivity implements View.OnClickListener {
     public static final int Edit_NOTE = 8374; //修改笔记
     private int mPosition; //从哪个位置点进来的,-1代表是新建的笔记
     private TimePickerView timePicker;
+    private ProgressDialog dialog;
 
 
 
@@ -271,27 +283,27 @@ public class EditActivity extends BaseActivity implements View.OnClickListener {
             popupWindow.dismiss();
         });
 
-        view.findViewById(R.id.linear_editor).setOnClickListener(v -> {
-            //编辑图片
-
-            rxPermissions.request(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE).subscribe(aBoolean -> {
-                if (aBoolean) {
-                    if (ActivityCompat.checkSelfPermission(EditActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(EditActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-
-                        Intent intent = new Intent(EditActivity.this, UCropActivity.class);
-                        intent.putExtra("filePath", currentUrl);
-                        String destDir = getFilesDir().getAbsolutePath().toString();
-                        String fileName = "SampleCropImage" + System.currentTimeMillis() + ".jpg";
-                        intent.putExtra("outPath", destDir + fileName);
-                        startActivityForResult(intent, 11);
-                        popupWindow.dismiss();
-
-                    }
-                } else {
-                    Toast.makeText(EditActivity.this, "相册需要此权限", Toast.LENGTH_SHORT).show();
-                }
-            });
-        });
+//        view.findViewById(R.id.linear_editor).setOnClickListener(v -> {
+//            //编辑图片
+//
+//            rxPermissions.request(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE).subscribe(aBoolean -> {
+//                if (aBoolean) {
+//                    if (ActivityCompat.checkSelfPermission(EditActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(EditActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+//
+//                        Intent intent = new Intent(EditActivity.this, UCropActivity.class);
+//                        intent.putExtra("filePath", currentUrl);
+//                        String destDir = getFilesDir().getAbsolutePath().toString();
+//                        String fileName = "SampleCropImage" + System.currentTimeMillis() + ".jpg";
+//                        intent.putExtra("outPath", destDir + fileName);
+//                        startActivityForResult(intent, 11);
+//                        popupWindow.dismiss();
+//
+//                    }
+//                } else {
+//                    Toast.makeText(EditActivity.this, "相册需要此权限", Toast.LENGTH_SHORT).show();
+//                }
+//            });
+//        });
 
         view.findViewById(R.id.linear_delete_pic).setOnClickListener(v -> {
             //删除图片
@@ -369,6 +381,7 @@ public class EditActivity extends BaseActivity implements View.OnClickListener {
                 seekBar.setProgress(size * 25);
                 //编辑器字体四级起步
                 binding.richEditor.setFontSize(size + 3);
+                dismissFont();
             }
         });
 
@@ -476,51 +489,67 @@ public class EditActivity extends BaseActivity implements View.OnClickListener {
 
             //文本调整部分点击事件
             case R.id.font_cancel:
-                binding.fontContainer.setVisibility(View.GONE);
-                binding.editorContainer.setVisibility(View.VISIBLE);
-                KeyBoardUtils.openKeybord(binding.editName, EditActivity.this);
+                dismissFont();
                 break;
             case R.id.iv_indent:
                 binding.richEditor.setIndent();
+                dismissFont();
                 break;
             case R.id.iv_outdent:
                 binding.richEditor.setOutdent();
+                dismissFont();
                 break;
             case R.id.iv_alignleft:
                 binding.richEditor.setAlignLeft();
+                dismissFont();
                 break;
             case R.id.iv_aligncenter:
                 binding.richEditor.setAlignCenter();
+                dismissFont();
                 break;
             case R.id.iv_alignright:
                 binding.richEditor.setAlignRight();
+                dismissFont();
                 break;
             case R.id.iv_color_red:
                 binding.richEditor.setTextColor(Color.RED);
+                dismissFont();
                 break;
             case R.id.iv_color_green:
                 binding.richEditor.setTextColor(Color.GREEN);
+                dismissFont();
                 break;
             case R.id.iv_color_yellow:
                 binding.richEditor.setTextColor(Color.YELLOW);
+                dismissFont();
                 break;
             case R.id.iv_color_black:
                 binding.richEditor.setTextColor(Color.BLACK);
+                dismissFont();
                 break;
             case R.id.iv_color_blue:
                 binding.richEditor.setTextColor(Color.BLUE);
+                dismissFont();
                 break;
             case R.id.iv_color_darkblue:
                 binding.richEditor.setTextColor(Color.DARK_BLUE);
+                dismissFont();
                 break;
             case R.id.iv_color_purple:
                 binding.richEditor.setTextColor(Color.PURPLE);
+                dismissFont();
                 break;
             case R.id.iv_folder:
             case R.id.folder_name:
                 FolderActivity.startActivityForResult(EditActivity.this, binding.folderName.getText().toString(), FolderActivity.REQUEST_CODE);
                 break;
         }
+    }
+    //关闭文本调整框
+    public void dismissFont(){
+        binding.fontContainer.setVisibility(View.GONE);
+        binding.editorContainer.setVisibility(View.VISIBLE);
+        KeyBoardUtils.openKeybord(binding.editName, EditActivity.this);
     }
 
     private void againEdit() {
@@ -547,21 +576,62 @@ public class EditActivity extends BaseActivity implements View.OnClickListener {
                 selectImages.clear();
                 ArrayList<ImageItem> selects = (ArrayList<ImageItem>) data.getSerializableExtra(ImagePicker.EXTRA_RESULT_ITEMS);
                 selectImages.addAll(selects);
-
-                againEdit();
                 for (int i = 0; i < selectImages.size(); i++) {
-                    //在这里进行文件上传处理
-                    binding.richEditor.insertImage(selectImages.get(i).path, "dachshund");
-                }
-                KeyBoardUtils.openKeybord(binding.editName, EditActivity.this);
-                binding.richEditor.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (binding.richEditor != null) {
-                            binding.richEditor.scrollToBottom();
+//                    //在这里进行文件上传处理
+//
+//                    binding.richEditor.insertImage(selectImages.get(i).path, "dachshund");
+                    //显示loading
+                    showProgressDialog();
+//                    if (!selectImages.isEmpty()) {
+                        //单张图片上传
+                        ImageItem firstItem = selectImages.get(i);
+                        String filename = firstItem.path.substring(firstItem.path.lastIndexOf("/") + 1);
+                        Log.d("sakura", filename);
+                        try {
+                            AVFile avFile = AVFile.withAbsoluteLocalPath(filename, firstItem.path);
+                            avFile.saveInBackground().subscribe(new Observer<AVFile>() {
+                                @Override
+                                public void onSubscribe(@NotNull Disposable d) {
+                                }
+
+                                @Override
+                                public void onNext(@NotNull AVFile avFile) {
+                                    againEdit();
+                                    Log.d("sakura", "图片Url:" + avFile.getUrl());
+                                    binding.richEditor.insertImage(avFile.getUrl(), "dachshund");
+                                    KeyBoardUtils.openKeybord(binding.editName, EditActivity.this);
+                                    binding.richEditor.postDelayed(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            if (binding.richEditor != null) {
+                                                dialog.dismiss();
+                                                binding.richEditor.scrollToBottom();
+                                            }
+                                        }
+                                    }, 200);
+                                }
+
+                                @Override
+                                public void onError(@NotNull Throwable e) {
+                                    Log.d("sakura", "图片上传失败：" + e.getMessage());
+                                }
+
+                                @Override
+                                public void onComplete() {
+
+                                }
+                            });
+                        } catch (FileNotFoundException e) {
+                            Log.d("sakura", "FileNotFoundException" + e.getMessage());
                         }
                     }
-                }, 200);
+
+//                for (int i = 0; i < selectImages.size(); i++) {
+//                    //在这里进行文件上传处理
+//
+//                    binding.richEditor.insertImage(selectImages.get(i).path, "dachshund");
+//                }
+//                }
             }
         } else if (resultCode == -1) {
             if (requestCode == 11) {
@@ -678,5 +748,14 @@ public class EditActivity extends BaseActivity implements View.OnClickListener {
         }
     }
 
-
+    public void showProgressDialog(){
+        if (dialog == null){
+            dialog = new ProgressDialog(this);
+            dialog.setCancelable(false);
+            dialog.setMessage("正在上传图片");
+        }
+        if (!dialog.isShowing()) {
+            dialog.show();
+        }
+    }
 }

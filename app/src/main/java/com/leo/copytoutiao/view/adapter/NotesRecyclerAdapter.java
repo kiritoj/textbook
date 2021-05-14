@@ -47,7 +47,7 @@ public class NotesRecyclerAdapter extends BaseRecyclerAdapter<NoteBean> {
             holder.setText(R.id.title, mData.get(position).getTitle());
             holder.setText(R.id.content, HtmlUtil.getTextFromHtml(mData.get(position).getContent()));
             holder.setText(R.id.time, Utils.timeStamp2Date(mData.get(position).getTime()));
-            holder.setImageFromFile(R.id.image, mData.get(position).getUrl());
+            holder.setImageWithNet(R.id.image, mData.get(position).getUrl());
         }
         holder.getItemView().setOnClickListener(new View.OnClickListener() {
             @Override

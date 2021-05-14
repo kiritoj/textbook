@@ -17,6 +17,7 @@ public class RegisterViewModel extends AndroidViewModel {
     private FolderRepository mFolderRep;
     private MutableLiveData<Boolean> isRegisterIng;
     private MutableLiveData<String> registerResult;
+    private final String regex = "[a-zA-Z0-9]+@[a-zA-Z0-9]+\\.[a-zA-Z0-9]+";
 
     public RegisterViewModel(Application application){
         super(application);
@@ -27,6 +28,14 @@ public class RegisterViewModel extends AndroidViewModel {
     }
 
     public void register(String name, String password){
+        if (!name.matches(regex)){
+            registerResult.setValue("用户名格式错误");
+            return;
+        }
+        if (password.length() < 8){
+            registerResult.setValue("密码长度低于8位");
+            return;
+        }
         isRegisterIng.setValue(true);
         mLoginRep.register(name, password, new LoginRepository.LoginListener() {
             @Override

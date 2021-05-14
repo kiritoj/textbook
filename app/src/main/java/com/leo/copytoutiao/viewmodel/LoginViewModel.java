@@ -20,6 +20,7 @@ public class LoginViewModel extends AndroidViewModel {
     private MutableLiveData<String> loginResult;
 
     private LoginRepository loginRepository;
+    private final String regex = "[a-zA-Z0-9]+@[a-zA-Z0-9]+\\.[a-zA-Z0-9]+";
 
     public LoginViewModel(Application application){
         super(application);
@@ -29,6 +30,15 @@ public class LoginViewModel extends AndroidViewModel {
     }
 
     public void login(String name, String password){
+        //检测用户名与密码是否合规
+//        if (!name.matches(regex)){
+//            loginResult.setValue("用户名格式错误");
+//            return;
+//        }
+//        if (password.length() < 8){
+//            loginResult.setValue("密码长度低于8位");
+//            return;
+//        }
         isLoginIng.setValue(true);
         loginRepository.login(name, password, new LoginRepository.LoginListener() {
             @Override

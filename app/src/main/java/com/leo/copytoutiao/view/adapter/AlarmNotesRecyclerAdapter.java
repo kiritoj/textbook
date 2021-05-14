@@ -26,7 +26,7 @@ public class AlarmNotesRecyclerAdapter extends NotesRecyclerAdapter {
             holder.setText(R.id.title, mData.get(position).getTitle());
             holder.setText(R.id.content, HtmlUtil.getTextFromHtml(mData.get(position).getContent()));
             holder.setText(R.id.time, "将于" + Utils.timeStamp2Date(mData.get(position).getTime()) + "提醒");
-            holder.setImageFromFile(R.id.image, mData.get(position).getUrl());
+            holder.setImageWithNet(R.id.image, mData.get(position).getUrl());
         }
         holder.getItemView().setOnClickListener(new View.OnClickListener() {
             @Override

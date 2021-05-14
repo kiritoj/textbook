@@ -124,7 +124,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         });
 
         mLoginViewModel.getLoginResult().observe(this, s -> {
-            if (s.equals("OK")){
+            if ("OK".equals(s)){
                 //注册成功，跳转至首页
                 HomeActivity.startActivity(this);
                 finish();

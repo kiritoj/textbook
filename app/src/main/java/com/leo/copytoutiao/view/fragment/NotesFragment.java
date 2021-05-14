@@ -160,7 +160,7 @@ public class NotesFragment extends BaseFragment {
                         //kind匹配界面
                         boolean isNew = true; //是否是当前分类中不存在的笔记
                         for (NoteBean bean : mAdapter.getData()) {
-                            if (bean.getId() == note.getId()) {
+                            if (bean.getId().equals(note.getId())) {
                                 isNew = false;
                                 break;
                             }

@@ -105,7 +105,7 @@ public class NoteRepository extends BaseRepository<NoteBean> {
         object.put("id", bean.getId());
         object.put("title",bean.getTitle());
         object.put("content",bean.getContent());
-        object.put("url", bean.getUrl());
+        object.put("url", bean.getUrl() == null ? "" : bean.getUrl());
         object.put("kind",bean.getKind());
         object.put("time", bean.getTime());
         object.put("username",bean.getUserBean().getName());
@@ -158,9 +158,31 @@ public class NoteRepository extends BaseRepository<NoteBean> {
                 note.put("content", bean.getContent());
                 note.put("url", bean.getUrl());
                 note.put("kind", bean.getKind());
-                note.saveInBackground();
+                note.saveInBackground().subscribe(new Observer<AVObject>() {
+                    @Override
+                    public void onSubscribe(@NotNull Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(@NotNull AVObject avObject) {
+                        Log.d(TAG,"更新远程笔记成功：");
+                    }
+
+                    @Override
+                    public void onError(@NotNull Throwable e) {
+                        Log.d(TAG,"更新远程笔记失败：" + e.getMessage());
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
             }
-            public void onError(Throwable throwable) {}
+            public void onError(Throwable throwable) {
+                Log.d(TAG,"朝朝要更新的远程笔记失败：" + throwable.getMessage());
+            }
             public void onComplete() {}
         });
     }
@@ -435,7 +457,7 @@ public class NoteRepository extends BaseRepository<NoteBean> {
      */
     public void searchNote(String key, UserBean user, LoadListener<NoteBean> listener){
         if (database != null){
-            Cursor cursor =  database.rawQuery("select * from note where title like ? or content like ?", new String[]{"%" + key + "%"});
+            Cursor cursor =  database.rawQuery("select * from note where title like ? or content like ?", new String[]{"%" + key + "%","%" + key + "%"});
             if (cursor.moveToFirst()){
                 List<NoteBean> list = new ArrayList<>();
                 do {
@@ -448,6 +470,7 @@ public class NoteRepository extends BaseRepository<NoteBean> {
                             cursor.getLong(cursor.getColumnIndex("alarmtime")),
                             cursor.getString(cursor.getColumnIndex("id")));
                     list.add(note);
+                    Log.d(TAG,list.toString());
                 } while (cursor.moveToNext());
                 if (listener != null){
                     listener.onSuccess(list);

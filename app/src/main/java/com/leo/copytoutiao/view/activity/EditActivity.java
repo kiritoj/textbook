@@ -549,6 +549,7 @@ public class EditActivity extends BaseActivity implements View.OnClickListener {
     public void dismissFont(){
         binding.fontContainer.setVisibility(View.GONE);
         binding.editorContainer.setVisibility(View.VISIBLE);
+        binding.richEditor.scrollToBottom();
         KeyBoardUtils.openKeybord(binding.editName, EditActivity.this);
     }
 
